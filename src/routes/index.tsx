@@ -168,6 +168,41 @@ const SECTIONS: Section[] = [
   },
 ];
 
+function Sunflower({ className = "", size = 28 }: { className?: string; size?: number }) {
+  const petals = Array.from({ length: 12 });
+  return (
+    <svg
+      viewBox="0 0 64 64"
+      width={size}
+      height={size}
+      className={className}
+      aria-hidden
+    >
+      {petals.map((_, i) => (
+        <ellipse
+          key={i}
+          cx="32"
+          cy="14"
+          rx="4.5"
+          ry="10"
+          fill="var(--sunflower)"
+          stroke="var(--gold)"
+          strokeWidth="0.8"
+          transform={`rotate(${(360 / petals.length) * i} 32 32)`}
+        />
+      ))}
+      <circle cx="32" cy="32" r="8" fill="var(--ink)" />
+      <circle cx="32" cy="32" r="8" fill="url(#seedGrain)" opacity="0.6" />
+      <defs>
+        <radialGradient id="seedGrain">
+          <stop offset="0%" stopColor="var(--gold)" stopOpacity="0.4" />
+          <stop offset="100%" stopColor="var(--ink)" stopOpacity="0" />
+        </radialGradient>
+      </defs>
+    </svg>
+  );
+}
+
 function Logo({ className = "" }: { className?: string }) {
   return (
     <div
@@ -175,7 +210,7 @@ function Logo({ className = "" }: { className?: string }) {
       style={{ boxShadow: "inset 0 0 0 1px var(--gold), inset 0 0 0 4px var(--ink), inset 0 0 0 5px color-mix(in oklab, var(--gold) 60%, transparent)" }}
     >
       <div className="text-center leading-none">
-        <div className="font-script text-[0.95em] text-gold-soft" style={{ color: "var(--gold-soft)" }}>
+        <div className="font-script text-[1.05em]" style={{ color: "var(--sunflower)" }}>
           Cafetteria
         </div>
         <div className="font-display text-[0.55em] uppercase tracking-[0.3em]" style={{ color: "var(--gold)" }}>
@@ -227,8 +262,11 @@ function Menu() {
           <div className="flex items-center gap-3">
             <Logo className="h-14 w-14 shrink-0 sm:h-16 sm:w-16" />
             <div className="min-w-0 flex-1">
-              <div className="font-script text-xl leading-none text-gold sm:text-2xl" style={{ color: "var(--gold)" }}>
-                Cafetteria
+              <div className="flex items-center gap-2">
+                <div className="font-script text-2xl leading-none sm:text-3xl" style={{ color: "var(--gold)" }}>
+                  Cafetteria
+                </div>
+                <Sunflower size={22} className="shrink-0" />
               </div>
               <h1 className="font-display text-2xl font-bold leading-tight sm:text-3xl">
                 Bistrô
@@ -273,14 +311,16 @@ function Menu() {
       {/* Hero */}
       <section className="mx-auto max-w-3xl px-4 pt-8 pb-4 sm:px-6 sm:pt-12">
         <div className="text-center">
-          <div className="mx-auto mb-4 flex items-center justify-center gap-3 text-gold" style={{ color: "var(--gold)" }}>
+          <div className="mx-auto mb-4 flex items-center justify-center gap-3" style={{ color: "var(--gold)" }}>
             <span className="h-px w-10 bg-current opacity-60" />
+            <Sunflower size={26} />
             <span className="text-[10px] font-semibold uppercase tracking-[0.35em]">Cardápio</span>
+            <Sunflower size={26} />
             <span className="h-px w-10 bg-current opacity-60" />
           </div>
           <h2 className="font-display text-4xl font-bold leading-[1.05] sm:text-6xl">
             Um cantinho
-            <span className="block font-script text-5xl font-normal italic sm:text-7xl" style={{ color: "var(--gold)" }}>
+            <span className="block font-script text-6xl font-normal sm:text-8xl" style={{ color: "var(--gold)" }}>
               aconchegante
             </span>
             para você
@@ -305,26 +345,29 @@ function Menu() {
               <div
                 className={
                   highlight
-                    ? "relative overflow-hidden rounded-2xl border-2 p-5 sm:p-8"
+                    ? "relative rounded-2xl p-5 sm:p-8"
                     : ""
                 }
                 style={
                   highlight
                     ? {
-                        borderColor: "var(--gold)",
+                        border: "3px dashed var(--gold)",
+                        outline: "1px solid color-mix(in oklab, var(--gold) 30%, transparent)",
+                        outlineOffset: "4px",
                         background:
-                          "linear-gradient(180deg, color-mix(in oklab, var(--gold) 8%, var(--card)) 0%, var(--card) 100%)",
-                        boxShadow: "var(--shadow-gold)",
+                          "linear-gradient(180deg, color-mix(in oklab, var(--sunflower) 12%, var(--card)) 0%, var(--card) 100%)",
+                        boxShadow: "0 4px 0 color-mix(in oklab, var(--ink) 15%, transparent), var(--shadow-warm)",
                       }
                     : undefined
                 }
               >
                 {highlight && (
                   <div
-                    className="absolute -top-3 left-5 rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.25em]"
-                    style={{ backgroundColor: "var(--gold)", color: "var(--ink)" }}
+                    className="absolute -top-4 left-5 flex items-center gap-1.5 rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.25em] shadow-sm"
+                    style={{ backgroundColor: "var(--sunflower)", color: "var(--ink)", border: "2px solid var(--ink)" }}
                   >
-                    ★ Hoje
+                    <Sunflower size={14} />
+                    Hoje
                   </div>
                 )}
 
@@ -434,9 +477,11 @@ function Menu() {
               </div>
             </div>
 
-            <div className="mt-4 flex items-center gap-3 text-[10px] uppercase tracking-[0.3em] opacity-60">
+            <div className="mt-4 flex items-center gap-3 text-[10px] uppercase tracking-[0.3em] opacity-70">
               <span className="h-px w-8" style={{ backgroundColor: "var(--gold)" }} />
+              <Sunflower size={18} />
               Aberto Seg — Sáb · 7h às 19h
+              <Sunflower size={18} />
               <span className="h-px w-8" style={{ backgroundColor: "var(--gold)" }} />
             </div>
           </div>
