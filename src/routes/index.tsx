@@ -214,19 +214,12 @@ function Sunflower({
 
 function Logo({ className = "" }: { className?: string }) {
   return (
-    <div
-      className={`relative grid aspect-square place-items-center rounded-full bg-ink text-cream ${className}`}
-      style={{ boxShadow: "inset 0 0 0 1px var(--gold), inset 0 0 0 4px var(--ink), inset 0 0 0 5px color-mix(in oklab, var(--gold) 60%, transparent)" }}
-    >
-      <div className="text-center leading-none">
-        <div className="font-script text-[1.05em]" style={{ color: "var(--sunflower)" }}>
-          Cafetteria
-        </div>
-        <div className="font-display text-[0.55em] uppercase tracking-[0.3em]" style={{ color: "var(--gold)" }}>
-          Bistrô
-        </div>
-      </div>
-    </div>
+    <img
+      src={logoAsset.url}
+      alt="Cafetteria Bistrô"
+      className={`aspect-square rounded-full object-cover ${className}`}
+      style={{ boxShadow: "0 0 0 1px var(--gold), 0 6px 16px color-mix(in oklab, var(--ink) 25%, transparent)" }}
+    />
   );
 }
 
