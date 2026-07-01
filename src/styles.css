@@ -76,9 +76,20 @@
     font-family: var(--font-sans);
     font-feature-settings: "ss01", "cv11";
     -webkit-font-smoothing: antialiased;
+    /* Kraft paper texture — layered noise + warm fiber tint */
     background-image:
-      radial-gradient(circle at 20% 0%, color-mix(in oklab, var(--gold) 8%, transparent) 0%, transparent 40%),
-      radial-gradient(circle at 100% 100%, color-mix(in oklab, var(--gold) 6%, transparent) 0%, transparent 40%);
+      radial-gradient(circle at 15% 20%, color-mix(in oklab, var(--ink) 5%, transparent) 0 1px, transparent 1.5px),
+      radial-gradient(circle at 70% 60%, color-mix(in oklab, var(--ink) 4%, transparent) 0 1px, transparent 1.5px),
+      radial-gradient(circle at 40% 85%, color-mix(in oklab, var(--gold) 8%, transparent) 0 1px, transparent 1.5px),
+      radial-gradient(circle at 90% 15%, color-mix(in oklab, var(--ink) 4%, transparent) 0 1px, transparent 1.5px),
+      repeating-linear-gradient(
+        112deg,
+        transparent 0 3px,
+        color-mix(in oklab, var(--ink) 2%, transparent) 3px 4px
+      ),
+      radial-gradient(ellipse at 20% 0%, color-mix(in oklab, var(--sunflower) 10%, transparent) 0%, transparent 45%),
+      radial-gradient(ellipse at 100% 100%, color-mix(in oklab, var(--gold) 8%, transparent) 0%, transparent 45%);
+    background-size: 7px 7px, 11px 11px, 13px 13px, 9px 9px, auto, auto, auto;
     background-attachment: fixed;
   }
 }
