@@ -752,12 +752,7 @@ function CartDialog({
 
             <button
               onClick={() => {
-                if (orderType === "dine-in") {
-                  setMethod("Presencial");
-                  setStep("dine-confirm");
-                } else {
-                  setStep("payment");
-                }
+                setStep(orderType === "dine-in" ? "dine-confirm" : "takeout-confirm");
               }}
               disabled={!orderType || (orderType === "dine-in" && !table.trim())}
               className="mt-4 w-full rounded-full py-3 text-sm font-bold uppercase tracking-widest transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
