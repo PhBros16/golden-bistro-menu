@@ -168,14 +168,22 @@ const SECTIONS: Section[] = [
   },
 ];
 
-function Sunflower({ className = "", size = 28 }: { className?: string; size?: number }) {
+function Sunflower({
+  className = "",
+  size = 28,
+  spin = false,
+}: {
+  className?: string;
+  size?: number;
+  spin?: boolean;
+}) {
   const petals = Array.from({ length: 12 });
   return (
     <svg
       viewBox="0 0 64 64"
       width={size}
       height={size}
-      className={className}
+      className={`${spin ? "spin-slow" : ""} ${className}`}
       aria-hidden
     >
       {petals.map((_, i) => (
@@ -218,6 +226,112 @@ function Logo({ className = "" }: { className?: string }) {
         </div>
       </div>
     </div>
+  );
+}
+
+/** Scroll reveal: adds `is-visible` when the element enters the viewport. */
+function useReveal<T extends HTMLElement>() {
+  const ref = useRef<T | null>(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            e.target.classList.add("is-visible");
+            io.unobserve(e.target);
+          }
+        });
+      },
+      { rootMargin: "0px 0px -10% 0px", threshold: 0.05 },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+  return ref;
+}
+
+function SectionBlock({ section, index }: { section: Section; index: number }) {
+  const ref = useReveal<HTMLElement>();
+  const highlight = section.id === "prato-do-dia";
+  return (
+    <section
+      ref={ref}
+      id={section.id}
+      className="reveal scroll-mt-40 pt-10 sm:pt-14"
+    >
+      <div
+        className={highlight ? "relative rounded-2xl p-5 sm:p-8" : ""}
+        style={
+          highlight
+            ? {
+                border: "3px dashed var(--gold)",
+                outline: "1px solid color-mix(in oklab, var(--gold) 30%, transparent)",
+                outlineOffset: "4px",
+                background:
+                  "linear-gradient(180deg, color-mix(in oklab, var(--sunflower) 12%, var(--card)) 0%, var(--card) 100%)",
+                boxShadow: "0 4px 0 color-mix(in oklab, var(--ink) 15%, transparent), var(--shadow-warm)",
+              }
+            : undefined
+        }
+      >
+        {highlight && (
+          <div
+            className="chalk-corners pulse-soft absolute -top-4 left-5 flex items-center gap-1.5 rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.25em]"
+            style={{ backgroundColor: "var(--sunflower)", color: "var(--ink)", border: "2px solid var(--ink)" }}
+          >
+            Hoje
+          </div>
+        )}
+
+        <div className={`${highlight ? "" : "mb-5"} flex items-baseline gap-3`}>
+          <h3 className="font-display text-3xl font-bold leading-none sm:text-4xl">
+            {section.title}
+          </h3>
+          <span className="h-px flex-1" style={{ backgroundColor: "var(--gold)", opacity: 0.4 }} />
+          <span className="font-script text-lg" style={{ color: "var(--gold)" }}>
+            {String(index + 1).padStart(2, "0")}
+          </span>
+        </div>
+
+        <ul className={highlight ? "mt-6 space-y-2" : "space-y-1"}>
+          {section.items.map((item, i) => (
+            <li
+              key={i}
+              className={`${highlight ? "" : "item-row"} group flex items-baseline gap-2`}
+            >
+              <div className="min-w-0 flex-1">
+                <span className="text-[15px] font-medium leading-snug sm:text-base">
+                  {item.name}
+                </span>
+                {item.note && (
+                  <span className="ml-2 text-xs italic text-muted-foreground">
+                    {item.note}
+                  </span>
+                )}
+              </div>
+              <span
+                aria-hidden
+                className="dotted-leader h-[3px] min-w-[16px] flex-1 self-end pb-1 opacity-30"
+              />
+              <span
+                className="shrink-0 whitespace-nowrap font-display text-base font-bold tabular-nums sm:text-lg"
+                style={{ color: highlight ? "var(--gold)" : "var(--foreground)" }}
+              >
+                R$ {item.price}
+              </span>
+            </li>
+          ))}
+        </ul>
+
+        {section.footnote && (
+          <p className="mt-5 text-center font-script text-lg" style={{ color: "var(--gold)" }}>
+            {section.footnote}
+          </p>
+        )}
+      </div>
+    </section>
   );
 }
 
@@ -266,7 +380,7 @@ function Menu() {
                 <div className="font-script text-2xl leading-none sm:text-3xl" style={{ color: "var(--gold)" }}>
                   Cafetteria
                 </div>
-                <Sunflower size={22} className="shrink-0" />
+                <Sunflower size={22} spin className="shrink-0" />
               </div>
               <h1 className="font-display text-2xl font-bold leading-tight sm:text-3xl">
                 Bistrô
@@ -289,9 +403,9 @@ function Menu() {
                   key={s.id}
                   data-chip={s.id}
                   onClick={() => scrollTo(s.id)}
-                  className={`shrink-0 snap-start rounded-full border px-4 py-1.5 text-sm font-medium transition-all ${
+                  className={`shrink-0 snap-start rounded-full border px-4 py-1.5 text-sm font-medium transition-[background-color,color,border-color,box-shadow,transform] duration-200 ease-out ${
                     isActive
-                      ? "border-transparent bg-ink text-cream shadow-warm"
+                      ? "border-transparent shadow-warm"
                       : "border-border bg-transparent text-muted-foreground hover:border-gold/60 hover:text-foreground"
                   }`}
                   style={
@@ -312,11 +426,12 @@ function Menu() {
       <section className="mx-auto max-w-3xl px-4 pt-8 pb-4 sm:px-6 sm:pt-12">
         <div className="text-center">
           <div className="mx-auto mb-4 flex items-center justify-center gap-3" style={{ color: "var(--gold)" }}>
-            <span className="h-px w-10 bg-current opacity-60" />
-            <Sunflower size={26} />
-            <span className="text-[10px] font-semibold uppercase tracking-[0.35em]">Cardápio</span>
-            <Sunflower size={26} />
-            <span className="h-px w-10 bg-current opacity-60" />
+            <span className="h-px w-16 bg-current opacity-60" />
+            <Sunflower size={28} />
+            <span className="h-px w-16 bg-current opacity-60" />
+          </div>
+          <div className="mb-3 text-[10px] font-semibold uppercase tracking-[0.35em]" style={{ color: "var(--gold)" }}>
+            Cardápio
           </div>
           <h2 className="font-display text-4xl font-bold leading-[1.05] sm:text-6xl">
             Um cantinho
@@ -334,89 +449,9 @@ function Menu() {
 
       {/* Sections */}
       <main className="mx-auto max-w-3xl px-4 pb-24 sm:px-6">
-        {SECTIONS.map((section) => {
-          const highlight = section.id === "prato-do-dia";
-          return (
-            <section
-              key={section.id}
-              id={section.id}
-              className="scroll-mt-40 pt-10 sm:pt-14"
-            >
-              <div
-                className={
-                  highlight
-                    ? "relative rounded-2xl p-5 sm:p-8"
-                    : ""
-                }
-                style={
-                  highlight
-                    ? {
-                        border: "3px dashed var(--gold)",
-                        outline: "1px solid color-mix(in oklab, var(--gold) 30%, transparent)",
-                        outlineOffset: "4px",
-                        background:
-                          "linear-gradient(180deg, color-mix(in oklab, var(--sunflower) 12%, var(--card)) 0%, var(--card) 100%)",
-                        boxShadow: "0 4px 0 color-mix(in oklab, var(--ink) 15%, transparent), var(--shadow-warm)",
-                      }
-                    : undefined
-                }
-              >
-                {highlight && (
-                  <div
-                    className="absolute -top-4 left-5 flex items-center gap-1.5 rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.25em] shadow-sm"
-                    style={{ backgroundColor: "var(--sunflower)", color: "var(--ink)", border: "2px solid var(--ink)" }}
-                  >
-                    <Sunflower size={14} />
-                    Hoje
-                  </div>
-                )}
-
-                <div className={`${highlight ? "" : "mb-5"} flex items-baseline gap-3`}>
-                  <h3 className="font-display text-3xl font-bold leading-none sm:text-4xl">
-                    {section.title}
-                  </h3>
-                  <span className="h-px flex-1" style={{ backgroundColor: "var(--gold)", opacity: 0.4 }} />
-                  <span className="font-script text-lg" style={{ color: "var(--gold)" }}>
-                    {String(SECTIONS.indexOf(section) + 1).padStart(2, "0")}
-                  </span>
-                </div>
-
-                <ul className={highlight ? "mt-6 space-y-3" : "space-y-3"}>
-                  {section.items.map((item, i) => (
-                    <li key={i} className="group flex items-baseline gap-2">
-                      <div className="min-w-0 flex-1">
-                        <span className="text-[15px] font-medium leading-snug sm:text-base">
-                          {item.name}
-                        </span>
-                        {item.note && (
-                          <span className="ml-2 text-xs italic text-muted-foreground">
-                            {item.note}
-                          </span>
-                        )}
-                      </div>
-                      <span
-                        aria-hidden
-                        className="dotted-leader h-[3px] min-w-[16px] flex-1 self-end pb-1 opacity-30"
-                      />
-                      <span
-                        className="shrink-0 whitespace-nowrap font-display text-base font-bold tabular-nums sm:text-lg"
-                        style={{ color: highlight ? "var(--gold)" : "var(--foreground)" }}
-                      >
-                        R$ {item.price}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-
-                {section.footnote && (
-                  <p className="mt-5 text-center font-script text-lg" style={{ color: "var(--gold)" }}>
-                    {section.footnote}
-                  </p>
-                )}
-              </div>
-            </section>
-          );
-        })}
+        {SECTIONS.map((section, i) => (
+          <SectionBlock key={section.id} section={section} index={i} />
+        ))}
 
         {/* Signature block */}
         <div className="mt-16 text-center">
@@ -478,11 +513,10 @@ function Menu() {
             </div>
 
             <div className="mt-4 flex items-center gap-3 text-[10px] uppercase tracking-[0.3em] opacity-70">
-              <span className="h-px w-8" style={{ backgroundColor: "var(--gold)" }} />
+              <span className="h-px w-10" style={{ backgroundColor: "var(--gold)" }} />
               <Sunflower size={18} />
-              Aberto Seg — Sáb · 7h às 19h
-              <Sunflower size={18} />
-              <span className="h-px w-8" style={{ backgroundColor: "var(--gold)" }} />
+              <span>Aberto Seg — Sáb · 7h às 19h</span>
+              <span className="h-px w-10" style={{ backgroundColor: "var(--gold)" }} />
             </div>
           </div>
         </div>
