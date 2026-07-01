@@ -240,7 +240,7 @@ const SECTIONS: Section[] = [
   },
 ];
 
-const PIX_KEY = "84213122259";
+
 const WHATSAPP_NUMBER = "5584991362838"; // TEMP: número de teste até liberação dos donos
 
 function priceToNumber(price: string): number {
