@@ -305,8 +305,28 @@ function Logo({ className = "" }: { className?: string }) {
 // ----- Cart -----
 type CartLine = { name: string; unitPrice: number; qty: number; note?: string };
 
+const CART_STORAGE_KEY = "cafetteria-cart-v1";
+
 function useCart() {
-  const [lines, setLines] = useState<Record<string, CartLine>>({});
+  const [lines, setLines] = useState<Record<string, CartLine>>(() => {
+    if (typeof window === "undefined") return {};
+    try {
+      const raw = window.localStorage.getItem(CART_STORAGE_KEY);
+      return raw ? (JSON.parse(raw) as Record<string, CartLine>) : {};
+    } catch {
+      return {};
+    }
+  });
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      window.localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(lines));
+    } catch {
+      /* ignore quota / private mode */
+    }
+  }, [lines]);
+
   const key = (i: Item) => `${i.name}${i.note ? "|" + i.note : ""}`;
 
   const add = (item: Item) => {
