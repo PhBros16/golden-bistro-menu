@@ -345,26 +345,29 @@ function Menu() {
               <div
                 className={
                   highlight
-                    ? "relative overflow-hidden rounded-2xl border-2 p-5 sm:p-8"
+                    ? "relative rounded-2xl p-5 sm:p-8"
                     : ""
                 }
                 style={
                   highlight
                     ? {
-                        borderColor: "var(--gold)",
+                        border: "3px dashed var(--gold)",
+                        outline: "1px solid color-mix(in oklab, var(--gold) 30%, transparent)",
+                        outlineOffset: "4px",
                         background:
-                          "linear-gradient(180deg, color-mix(in oklab, var(--gold) 8%, var(--card)) 0%, var(--card) 100%)",
-                        boxShadow: "var(--shadow-gold)",
+                          "linear-gradient(180deg, color-mix(in oklab, var(--sunflower) 12%, var(--card)) 0%, var(--card) 100%)",
+                        boxShadow: "0 4px 0 color-mix(in oklab, var(--ink) 15%, transparent), var(--shadow-warm)",
                       }
                     : undefined
                 }
               >
                 {highlight && (
                   <div
-                    className="absolute -top-3 left-5 rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.25em]"
-                    style={{ backgroundColor: "var(--gold)", color: "var(--ink)" }}
+                    className="absolute -top-4 left-5 flex items-center gap-1.5 rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.25em] shadow-sm"
+                    style={{ backgroundColor: "var(--sunflower)", color: "var(--ink)", border: "2px solid var(--ink)" }}
                   >
-                    ★ Hoje
+                    <Sunflower size={14} />
+                    Hoje
                   </div>
                 )}
 
