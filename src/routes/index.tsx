@@ -262,8 +262,11 @@ function Menu() {
           <div className="flex items-center gap-3">
             <Logo className="h-14 w-14 shrink-0 sm:h-16 sm:w-16" />
             <div className="min-w-0 flex-1">
-              <div className="font-script text-xl leading-none text-gold sm:text-2xl" style={{ color: "var(--gold)" }}>
-                Cafetteria
+              <div className="flex items-center gap-2">
+                <div className="font-script text-2xl leading-none sm:text-3xl" style={{ color: "var(--gold)" }}>
+                  Cafetteria
+                </div>
+                <Sunflower size={22} className="shrink-0" />
               </div>
               <h1 className="font-display text-2xl font-bold leading-tight sm:text-3xl">
                 Bistrô
