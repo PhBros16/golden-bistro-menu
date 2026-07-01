@@ -532,7 +532,7 @@ function SectionBlock({
 
 // ----- Cart Dialog with order type + payment flow -----
 type OrderType = "dine-in" | "takeout";
-type Step = "cart" | "order-type" | "payment" | "pix" | "card" | "dine-confirm";
+type Step = "cart" | "order-type" | "dine-confirm" | "takeout-confirm";
 
 function CartDialog({
   open,
@@ -545,9 +545,7 @@ function CartDialog({
 }) {
   const [step, setStep] = useState<Step>("cart");
   const [table, setTable] = useState("");
-  const [copied, setCopied] = useState(false);
   const [orderType, setOrderType] = useState<OrderType | null>(null);
-  const [method, setMethod] = useState<"Pix" | "Cartão" | "Presencial" | null>(null);
 
   const animatedTotal = useCountUp(cart.total);
 
@@ -557,10 +555,11 @@ function CartDialog({
 
   const buildMessage = () => {
     const lines = cart.items
-      .map(
-        (l) =>
-          `• ${l.name}${l.note ? ` (${l.note})` : ""} x${l.qty} — R$ ${formatBRL(l.qty * l.unitPrice)}`,
-      )
+      .map((l) => {
+        const variant = l.note ? ` (${l.note})` : "";
+        const obs = l.obs?.trim() ? `\n   ↳ obs: ${l.obs.trim()}` : "";
+        return `• ${l.name}${variant} x${l.qty} — R$ ${formatBRL(l.qty * l.unitPrice)}${obs}`;
+      })
       .join("\n");
     const typeLabel = orderType === "dine-in" ? "Comer aqui" : "Retirar / Delivery";
     const location = orderType === "dine-in" ? `Mesa: ${table || "—"}` : `Retirada / Delivery`;
@@ -568,8 +567,7 @@ function CartDialog({
       `*Pedido - Cafetteria Bistrô*\n` +
       `${typeLabel}\n${location}\n\n` +
       `${lines}\n\n` +
-      `*Total:* R$ ${formatBRL(cart.total)}\n` +
-      `*Pagamento:* ${method ?? "—"}`
+      `*Total:* R$ ${formatBRL(cart.total)}`
     );
   };
 
@@ -581,22 +579,11 @@ function CartDialog({
       cart.clear();
       setTable("");
       setOrderType(null);
-      setMethod(null);
     }, 400);
   };
 
-  const copyPix = async () => {
-    try {
-      await navigator.clipboard.writeText(PIX_KEY);
-      setCopied(true);
-      toast.success("Chave Pix copiada!");
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      toast.error("Não foi possível copiar");
-    }
-  };
-
   const canProceed = cart.count > 0;
+
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
