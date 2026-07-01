@@ -76,20 +76,16 @@
     font-family: var(--font-sans);
     font-feature-settings: "ss01", "cv11";
     -webkit-font-smoothing: antialiased;
-    /* Kraft paper texture — layered noise + warm fiber tint */
+    /* Kraft paper texture — lightweight: 1 noise layer + 1 fiber line + 1 sunflower tint */
     background-image:
-      radial-gradient(circle at 15% 20%, color-mix(in oklab, var(--ink) 5%, transparent) 0 1px, transparent 1.5px),
-      radial-gradient(circle at 70% 60%, color-mix(in oklab, var(--ink) 4%, transparent) 0 1px, transparent 1.5px),
-      radial-gradient(circle at 40% 85%, color-mix(in oklab, var(--gold) 8%, transparent) 0 1px, transparent 1.5px),
-      radial-gradient(circle at 90% 15%, color-mix(in oklab, var(--ink) 4%, transparent) 0 1px, transparent 1.5px),
+      radial-gradient(circle at 30% 40%, color-mix(in oklab, var(--ink) 5%, transparent) 0 1px, transparent 1.5px),
       repeating-linear-gradient(
         112deg,
         transparent 0 3px,
         color-mix(in oklab, var(--ink) 2%, transparent) 3px 4px
       ),
-      radial-gradient(ellipse at 20% 0%, color-mix(in oklab, var(--sunflower) 10%, transparent) 0%, transparent 45%),
-      radial-gradient(ellipse at 100% 100%, color-mix(in oklab, var(--gold) 8%, transparent) 0%, transparent 45%);
-    background-size: 7px 7px, 11px 11px, 13px 13px, 9px 9px, auto, auto, auto;
+      radial-gradient(ellipse at 20% 0%, color-mix(in oklab, var(--sunflower) 10%, transparent) 0%, transparent 45%);
+    background-size: 9px 9px, auto, auto;
     background-attachment: fixed;
   }
 }
@@ -121,7 +117,7 @@
     0 2px 0 color-mix(in oklab, var(--ink) 15%, transparent);
 }
 
-/* Chalk-style thick corner brackets — for badge/callout containers */
+/* Chalk-style thick corner brackets — used on the "Hoje" badge */
 @utility chalk-corners {
   position: relative;
 }
@@ -130,20 +126,92 @@
   &::after {
     content: "";
     position: absolute;
-    width: 18px;
-    height: 18px;
-    border: 3px solid var(--gold);
+    width: 10px;
+    height: 10px;
+    border: 2px solid var(--ink);
+    pointer-events: none;
   }
   &::before {
-    top: -2px;
-    left: -2px;
+    top: -3px;
+    left: -3px;
     border-right: 0;
     border-bottom: 0;
   }
   &::after {
-    bottom: -2px;
-    right: -2px;
+    bottom: -3px;
+    right: -3px;
     border-left: 0;
     border-top: 0;
+  }
+}
+
+/* Item row: subtle dotted underline to echo the Prato do Dia frame */
+@utility item-row {
+  border-bottom: 1px dotted color-mix(in oklab, var(--gold) 45%, transparent);
+  border-radius: 6px;
+  padding: 6px 8px;
+  transition:
+    transform 200ms ease-out,
+    box-shadow 200ms ease-out,
+    background-color 200ms ease-out;
+}
+@utility item-row {
+  &:hover,
+  &:active {
+    transform: scale(1.01);
+    background-color: color-mix(in oklab, var(--sunflower) 6%, transparent);
+    box-shadow: 0 6px 18px -10px color-mix(in oklab, var(--ink) 35%, transparent);
+  }
+}
+
+/* Scroll reveal: fade + slide up */
+@utility reveal {
+  opacity: 0;
+  transform: translateY(12px);
+  transition:
+    opacity 300ms ease-out,
+    transform 300ms ease-out;
+}
+@utility reveal {
+  &.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Slow rotation for header sunflower */
+@keyframes slow-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+@utility spin-slow {
+  animation: slow-spin 20s linear infinite;
+  transform-origin: center;
+}
+
+/* Gentle glow pulse for "Hoje" badge */
+@keyframes soft-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 color-mix(in oklab, var(--sunflower) 55%, transparent);
+    opacity: 1;
+  }
+  50% {
+    box-shadow: 0 0 0 8px color-mix(in oklab, var(--sunflower) 0%, transparent);
+    opacity: 0.92;
+  }
+}
+@utility pulse-soft {
+  animation: soft-pulse 2.6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spin-slow,
+  .pulse-soft {
+    animation: none !important;
+  }
+  .reveal {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
   }
 }
