@@ -305,8 +305,28 @@ function Logo({ className = "" }: { className?: string }) {
 // ----- Cart -----
 type CartLine = { name: string; unitPrice: number; qty: number; note?: string };
 
+const CART_STORAGE_KEY = "cafetteria-cart-v1";
+
 function useCart() {
-  const [lines, setLines] = useState<Record<string, CartLine>>({});
+  const [lines, setLines] = useState<Record<string, CartLine>>(() => {
+    if (typeof window === "undefined") return {};
+    try {
+      const raw = window.localStorage.getItem(CART_STORAGE_KEY);
+      return raw ? (JSON.parse(raw) as Record<string, CartLine>) : {};
+    } catch {
+      return {};
+    }
+  });
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      window.localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(lines));
+    } catch {
+      /* ignore quota / private mode */
+    }
+  }, [lines]);
+
   const key = (i: Item) => `${i.name}${i.note ? "|" + i.note : ""}`;
 
   const add = (item: Item) => {
@@ -771,7 +791,7 @@ function CartDialog({
         {step === "dine-confirm" && (
           <>
             <DialogHeader>
-              <DialogTitle className="font-display text-2xl">Pedido pronto!</DialogTitle>
+              <DialogTitle className="font-display text-2xl">Confirme seu pedido</DialogTitle>
               <DialogDescription>
                 Mesa <strong>{table}</strong> · Total <strong>R$ {formatBRL(cart.total)}</strong>
               </DialogDescription>
@@ -786,10 +806,10 @@ function CartDialog({
             >
               <Utensils className="mx-auto mb-2 h-10 w-10" style={{ color: "var(--gold)" }} />
               <p className="font-script text-2xl leading-snug" style={{ color: "var(--ink)" }}>
-                Pedido enviado!
+                Revise seu pedido
               </p>
               <p className="mt-2 text-sm text-muted-foreground">
-                Um atendente já está a caminho para acompanhar o pagamento e confirmar seu pedido.
+                O pedido só é enviado para a cozinha quando você confirmar pelo WhatsApp.
               </p>
             </div>
 
@@ -799,7 +819,7 @@ function CartDialog({
               style={{ backgroundColor: "#25D366", color: "white" }}
             >
               <MessageCircle className="h-4 w-4" />
-              Enviar pedido via WhatsApp
+              Enviar pedido para a cozinha
             </button>
             <button
               onClick={() => setStep("order-type")}
@@ -1043,7 +1063,7 @@ function Menu() {
               </div>
               <h1 className="font-display text-2xl font-bold leading-tight sm:text-3xl">Bistrô</h1>
               <p className="mt-0.5 text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
-                Aberto · Seg a Sáb · 7h — 19h
+                Aberto · Todos os dias · 14h — 20h
               </p>
             </div>
           </div>
@@ -1202,7 +1222,7 @@ function Menu() {
             <div className="mt-4 flex items-center gap-3 text-[10px] uppercase tracking-[0.3em] opacity-70">
               <span className="h-px w-10" style={{ backgroundColor: "var(--gold)" }} />
               <Sunflower size={18} />
-              <span>Aberto Seg — Sáb · 7h às 19h</span>
+              <span>Aberto todos os dias · 14h às 20h</span>
               <span className="h-px w-10" style={{ backgroundColor: "var(--gold)" }} />
             </div>
           </div>
