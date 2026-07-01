@@ -791,7 +791,7 @@ function CartDialog({
         {step === "dine-confirm" && (
           <>
             <DialogHeader>
-              <DialogTitle className="font-display text-2xl">Pedido pronto!</DialogTitle>
+              <DialogTitle className="font-display text-2xl">Confirme seu pedido</DialogTitle>
               <DialogDescription>
                 Mesa <strong>{table}</strong> · Total <strong>R$ {formatBRL(cart.total)}</strong>
               </DialogDescription>
@@ -806,10 +806,10 @@ function CartDialog({
             >
               <Utensils className="mx-auto mb-2 h-10 w-10" style={{ color: "var(--gold)" }} />
               <p className="font-script text-2xl leading-snug" style={{ color: "var(--ink)" }}>
-                Pedido enviado!
+                Revise seu pedido
               </p>
               <p className="mt-2 text-sm text-muted-foreground">
-                Um atendente já está a caminho para acompanhar o pagamento e confirmar seu pedido.
+                O pedido só é enviado para a cozinha quando você confirmar pelo WhatsApp.
               </p>
             </div>
 
@@ -819,7 +819,7 @@ function CartDialog({
               style={{ backgroundColor: "#25D366", color: "white" }}
             >
               <MessageCircle className="h-4 w-4" />
-              Enviar pedido via WhatsApp
+              Enviar pedido para a cozinha
             </button>
             <button
               onClick={() => setStep("order-type")}
