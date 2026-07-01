@@ -204,14 +204,58 @@
   animation: soft-pulse 2.6s ease-in-out infinite;
 }
 
+/* One-shot bounce for cart badge when item added */
+@keyframes bounce-once {
+  0%, 100% { transform: scale(1); }
+  30% { transform: scale(1.28); }
+  60% { transform: scale(0.94); }
+}
+@utility bounce-once {
+  animation: bounce-once 420ms ease-out;
+}
+
+/* Dish thumbnail: gentle zoom on hover/tap */
+@utility dish-thumb {
+  overflow: hidden;
+  border-radius: 0.5rem;
+  border: 1px solid color-mix(in oklab, var(--gold) 40%, transparent);
+}
+@utility dish-thumb {
+  & img {
+    transition: transform 250ms ease-out;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  &:hover img,
+  &:active img {
+    transform: scale(1.08);
+  }
+}
+
+/* Counter tick micro-transition */
+@keyframes tick {
+  0% { transform: scale(0.7); opacity: 0.5; }
+  100% { transform: scale(1); opacity: 1; }
+}
+@utility tick-in {
+  animation: tick 180ms ease-out;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .spin-slow,
-  .pulse-soft {
+  .pulse-soft,
+  .bounce-once,
+  .tick-in {
     animation: none !important;
   }
   .reveal {
     opacity: 1 !important;
     transform: none !important;
+    transition: none !important;
+  }
+  .dish-thumb img {
     transition: none !important;
   }
 }

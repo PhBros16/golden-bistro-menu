@@ -1,16 +1,79 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { Plus, Minus, ShoppingBag, Copy, Check, QrCode, CreditCard, MessageCircle } from "lucide-react";
+import {
+  Plus,
+  Minus,
+  ShoppingBag,
+  Copy,
+  Check,
+  QrCode,
+  CreditCard,
+  MessageCircle,
+  Utensils,
+  Bike,
+} from "lucide-react";
 import logoAsset from "@/assets/cafetteria-logo.png.asset.json";
-import imgTapioca from "@/assets/dish-tapioca.jpg";
-import imgCuscuz from "@/assets/dish-cuscuz.jpg";
+// existing hero-ish images
+import imgTapiocaCarne from "@/assets/dish-tapioca.jpg";
+import imgCuscuzCarne from "@/assets/dish-cuscuz.jpg";
 import imgArrozLeite from "@/assets/dish-arroz-leite.jpg";
-import imgBrownie from "@/assets/dish-brownie.jpg";
+import imgBrownieSorvete from "@/assets/dish-brownie.jpg";
 import imgCappuccino from "@/assets/dish-cappuccino.jpg";
-import imgPao from "@/assets/dish-pao.jpg";
+import imgPaoChapa from "@/assets/dish-pao.jpg";
 import imgLasanha from "@/assets/dish-lasanha.jpg";
 import imgBolo from "@/assets/dish-bolo.jpg";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+// new images
+import imgPanqueca from "@/assets/dish-panqueca.jpg";
+import imgEscondidinho from "@/assets/dish-escondidinho.jpg";
+import imgFricasse from "@/assets/dish-fricasse.jpg";
+import imgSalpicao from "@/assets/dish-salpicao.jpg";
+import imgTapiocaQueijo from "@/assets/dish-tapioca-queijo.jpg";
+import imgTapiocaFrango from "@/assets/dish-tapioca-frango.jpg";
+import imgTapiocaOvo from "@/assets/dish-tapioca-ovo.jpg";
+import imgTapiocaCalabresa from "@/assets/dish-tapioca-calabresa.jpg";
+import imgCrepioca from "@/assets/dish-crepioca.jpg";
+import imgPaoOvo from "@/assets/dish-pao-ovo.jpg";
+import imgPaoRequeijao from "@/assets/dish-pao-requeijao.jpg";
+import imgPaoQueijo from "@/assets/dish-pao-queijo.jpg";
+import imgPaoFrango from "@/assets/dish-pao-frango.jpg";
+import imgPaoPresunto from "@/assets/dish-pao-presunto.jpg";
+import imgPaoCarne from "@/assets/dish-pao-carne.jpg";
+import imgCuscuzSimples from "@/assets/dish-cuscuz-simples.jpg";
+import imgCuscuzFrango from "@/assets/dish-cuscuz-frango.jpg";
+import imgCuscuzQueijo from "@/assets/dish-cuscuz-queijo.jpg";
+import imgCuscuzCalabresa from "@/assets/dish-cuscuz-calabresa.jpg";
+import imgTortaAbacaxi from "@/assets/dish-torta-abacaxi.jpg";
+import imgBoloCobertura from "@/assets/dish-bolo-cobertura.jpg";
+import imgBrownieSimples from "@/assets/dish-brownie-simples.jpg";
+import imgMungunza from "@/assets/dish-mungunza.jpg";
+import imgOmelete from "@/assets/dish-omelete.jpg";
+import imgSalgado from "@/assets/dish-salgado.jpg";
+import imgCachorroQuente from "@/assets/dish-cachorro-quente.jpg";
+import imgEmpadao from "@/assets/dish-empadao.jpg";
+import imgQuiche from "@/assets/dish-quiche.jpg";
+import imgSopa from "@/assets/dish-sopa.jpg";
+import imgCafeSimples from "@/assets/dish-cafe-simples.jpg";
+import imgExpresso from "@/assets/dish-expresso.jpg";
+import imgCafeLicor from "@/assets/dish-cafe-licor.jpg";
+import imgCappuccinoGelado from "@/assets/dish-cappuccino-gelado.jpg";
+import imgChocolateQuente from "@/assets/dish-chocolate-quente.jpg";
+import imgChaMate from "@/assets/dish-cha-mate.jpg";
+import imgCha from "@/assets/dish-cha.jpg";
+import imgSuco from "@/assets/dish-suco.jpg";
+import imgAgua from "@/assets/dish-agua.jpg";
+import imgWhisky from "@/assets/dish-whisky.jpg";
+import imgAmarula from "@/assets/dish-amarula.jpg";
+import imgRefriLata from "@/assets/dish-refri-lata.jpg";
+import imgAquaFresh from "@/assets/dish-aqua-fresh.jpg";
+import imgRecheio from "@/assets/dish-recheio.jpg";
+
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 
@@ -29,70 +92,70 @@ const SECTIONS: Section[] = [
     items: [
       { name: "Arroz de leite com carne de sol", price: "20,00", image: imgArrozLeite },
       { name: "Lasanha de carne", price: "20,00", image: imgLasanha },
-      { name: "Lasanha de frango", price: "20,00" },
-      { name: "1 Panqueca", price: "10,00" },
-      { name: "1 Panqueca com arroz", price: "14,00" },
-      { name: "2 Panquecas com arroz", price: "20,00" },
-      { name: "Escondidinho de macaxeira", price: "20,00" },
-      { name: "Fricassê de frango", price: "20,00" },
-      { name: "Salpicão", price: "20,00" },
+      { name: "Lasanha de frango", price: "20,00", image: imgLasanha },
+      { name: "1 Panqueca", price: "10,00", image: imgPanqueca },
+      { name: "1 Panqueca com arroz", price: "14,00", image: imgPanqueca },
+      { name: "2 Panquecas com arroz", price: "20,00", image: imgPanqueca },
+      { name: "Escondidinho de macaxeira", price: "20,00", image: imgEscondidinho },
+      { name: "Fricassê de frango", price: "20,00", image: imgFricasse },
+      { name: "Salpicão", price: "20,00", image: imgSalpicao },
     ],
   },
   {
     id: "tapioca",
     title: "Tapioca",
     items: [
-      { name: "Com manteiga", price: "5,00" },
-      { name: "Com ovo", price: "7,00" },
-      { name: "Com queijo coalho", price: "12,00" },
-      { name: "Com queijo manteiga", price: "12,00" },
-      { name: "Com mista", price: "12,00" },
-      { name: "Com creme de frango", price: "14,00" },
-      { name: "Com calabresa", price: "14,00" },
-      { name: "Com carne de sol", price: "15,00", image: imgTapioca },
-      { name: "Com carne moída", price: "13,00" },
-      { name: "Crepioca de frango", price: "15,00" },
-      { name: "Crepioca de queijo e presunto", price: "13,00" },
-      { name: "Crepioca de carne de sol", price: "16,00" },
+      { name: "Com manteiga", price: "5,00", image: imgTapiocaQueijo },
+      { name: "Com ovo", price: "7,00", image: imgTapiocaOvo },
+      { name: "Com queijo coalho", price: "12,00", image: imgTapiocaQueijo },
+      { name: "Com queijo manteiga", price: "12,00", image: imgTapiocaQueijo },
+      { name: "Com mista", price: "12,00", image: imgTapiocaQueijo },
+      { name: "Com creme de frango", price: "14,00", image: imgTapiocaFrango },
+      { name: "Com calabresa", price: "14,00", image: imgTapiocaCalabresa },
+      { name: "Com carne de sol", price: "15,00", image: imgTapiocaCarne },
+      { name: "Com carne moída", price: "13,00", image: imgTapiocaCarne },
+      { name: "Crepioca de frango", price: "15,00", image: imgTapiocaFrango },
+      { name: "Crepioca de queijo e presunto", price: "13,00", image: imgCrepioca },
+      { name: "Crepioca de carne de sol", price: "16,00", image: imgCrepioca },
     ],
   },
   {
     id: "paes",
     title: "Pães",
     items: [
-      { name: "Na chapa", price: "2,50", image: imgPao },
-      { name: "Com ovo", price: "5,00" },
-      { name: "Com requeijão", price: "5,00" },
-      { name: "Com cheddar", price: "5,00" },
-      { name: "Com queijo coalho", price: "10,00" },
-      { name: "Com queijo manteiga", price: "10,00" },
-      { name: "Com presunto e mussarela", price: "10,00" },
-      { name: "Com frango", price: "12,00" },
-      { name: "Com carne de sol na nata", price: "15,00" },
+      { name: "Na chapa", price: "2,50", image: imgPaoChapa },
+      { name: "Com ovo", price: "5,00", image: imgPaoOvo },
+      { name: "Com requeijão", price: "5,00", image: imgPaoRequeijao },
+      { name: "Com cheddar", price: "5,00", image: imgPaoRequeijao },
+      { name: "Com queijo coalho", price: "10,00", image: imgPaoQueijo },
+      { name: "Com queijo manteiga", price: "10,00", image: imgPaoQueijo },
+      { name: "Com presunto e mussarela", price: "10,00", image: imgPaoPresunto },
+      { name: "Com frango", price: "12,00", image: imgPaoFrango },
+      { name: "Com carne de sol na nata", price: "15,00", image: imgPaoCarne },
     ],
   },
   {
     id: "recheio",
     title: "Recheio Adicional",
     items: [
-      { name: "Ovo", price: "2,50" },
-      { name: "Queijo coalho ou manteiga", price: "7,50", note: "cada" },
-      { name: "Porção de carne", price: "15,00" },
-      { name: "Porção de frango", price: "12,00" },
+      { name: "Ovo", price: "2,50", image: imgRecheio },
+      { name: "Queijo coalho ou manteiga", price: "7,50", note: "cada", image: imgRecheio },
+      { name: "Porção de carne", price: "15,00", image: imgRecheio },
+      { name: "Porção de frango", price: "12,00", image: imgRecheio },
     ],
   },
   {
     id: "cuscuz",
     title: "Cuscuz",
     items: [
-      { name: "Com manteiga", price: "8,00" },
-      { name: "Com ovo", price: "10,00" },
-      { name: "Com carne de sol", price: "16,00", image: imgCuscuz },
-      { name: "Com frango", price: "13,00" },
-      { name: "Com queijo coalho ou manteiga", price: "12,00" },
-      { name: "Temperado", price: "14,00" },
-      { name: "Com calabresa", price: "14,00" },
-      { name: "Com carne moída", price: "13,00" },
+      { name: "Com manteiga", price: "8,00", image: imgCuscuzSimples },
+      { name: "Com ovo", price: "10,00", image: imgCuscuzSimples },
+      { name: "Com carne de sol", price: "16,00", image: imgCuscuzCarne },
+      { name: "Com frango", price: "13,00", image: imgCuscuzFrango },
+      { name: "Com queijo coalho ou manteiga", price: "12,00", image: imgCuscuzQueijo },
+      { name: "Temperado", price: "14,00", image: imgCuscuzSimples },
+      { name: "Com calabresa", price: "14,00", image: imgCuscuzCalabresa },
+      { name: "Com carne moída", price: "13,00", image: imgCuscuzFrango },
     ],
   },
   {
@@ -100,83 +163,83 @@ const SECTIONS: Section[] = [
     title: "Bolo",
     items: [
       { name: "Fatia do bolo", price: "8,00", image: imgBolo },
-      { name: "Fatia com cobertura", price: "12,00" },
-      { name: "Torta de abacaxi", price: "10,00" },
-      { name: "Brownie", price: "10,00" },
-      { name: "Brownie com sorvete", price: "14,00", image: imgBrownie },
+      { name: "Fatia com cobertura", price: "12,00", image: imgBoloCobertura },
+      { name: "Torta de abacaxi", price: "10,00", image: imgTortaAbacaxi },
+      { name: "Brownie", price: "10,00", image: imgBrownieSimples },
+      { name: "Brownie com sorvete", price: "14,00", image: imgBrownieSorvete },
     ],
   },
   {
     id: "pratos",
     title: "Pratos Diversos",
     items: [
-      { name: "Mungunzá", price: "8,00" },
-      { name: "Omelete (frango ou misto)", price: "15,00" },
-      { name: "Omelete (carne)", price: "18,00" },
-      { name: "Salgados", price: "5,00" },
-      { name: "Cachorro quente", price: "8,00" },
-      { name: "Empadão", price: "18,00" },
-      { name: "Torta salgada", price: "18,00" },
-      { name: "Quiche de frango", price: "18,00" },
-      { name: "Sopa (frango ou carne)", price: "13,00" },
+      { name: "Mungunzá", price: "8,00", image: imgMungunza },
+      { name: "Omelete (frango ou misto)", price: "15,00", image: imgOmelete },
+      { name: "Omelete (carne)", price: "18,00", image: imgOmelete },
+      { name: "Salgados", price: "5,00", image: imgSalgado },
+      { name: "Cachorro quente", price: "8,00", image: imgCachorroQuente },
+      { name: "Empadão", price: "18,00", image: imgEmpadao },
+      { name: "Torta salgada", price: "18,00", image: imgQuiche },
+      { name: "Quiche de frango", price: "18,00", image: imgQuiche },
+      { name: "Sopa (frango ou carne)", price: "13,00", image: imgSopa },
     ],
   },
   {
     id: "cafe",
     title: "Café",
     items: [
-      { name: "Café pequeno", price: "4,00" },
-      { name: "Café grande", price: "6,00" },
-      { name: "Acréscimo de leite", price: "1,00" },
-      { name: "Expresso pequeno", price: "8,00" },
-      { name: "Expresso grande", price: "12,00" },
-      { name: "Café com amarula", price: "12,00" },
-      { name: "Café com licor", price: "10,00" },
-      { name: "Café com whisky", price: "10,00" },
-      { name: "Café com avelã", price: "15,00" },
+      { name: "Café pequeno", price: "4,00", image: imgCafeSimples },
+      { name: "Café grande", price: "6,00", image: imgCafeSimples },
+      { name: "Acréscimo de leite", price: "1,00", image: imgCafeSimples },
+      { name: "Expresso pequeno", price: "8,00", image: imgExpresso },
+      { name: "Expresso grande", price: "12,00", image: imgExpresso },
+      { name: "Café com amarula", price: "12,00", image: imgCafeLicor },
+      { name: "Café com licor", price: "10,00", image: imgCafeLicor },
+      { name: "Café com whisky", price: "10,00", image: imgCafeLicor },
+      { name: "Café com avelã", price: "15,00", image: imgCafeLicor },
       { name: "Cappuccino", price: "15,00", image: imgCappuccino },
-      { name: "Cappuccino gelado", price: "18,00" },
-      { name: "Cappuccino com avelã", price: "18,00" },
-      { name: "Café descafeinado", price: "5,00", note: "pequeno" },
-      { name: "Café descafeinado", price: "9,00", note: "grande" },
+      { name: "Cappuccino gelado", price: "18,00", image: imgCappuccinoGelado },
+      { name: "Cappuccino com avelã", price: "18,00", image: imgCappuccino },
+      { name: "Café descafeinado", price: "5,00", note: "pequeno", image: imgCafeSimples },
+      { name: "Café descafeinado", price: "9,00", note: "grande", image: imgCafeSimples },
     ],
   },
   {
     id: "bebidas",
     title: "Bebidas",
     items: [
-      { name: "Chocolate quente", price: "15,00" },
-      { name: "Chá mate com limão", price: "10,00" },
-      { name: "Chá mate abacaxi/hortelã", price: "10,00" },
-      { name: "Chá mate", price: "8,00" },
-      { name: "Chá", price: "5,00" },
-      { name: "Achocolatado", price: "4,00" },
-      { name: "Suco na água", price: "8,00" },
-      { name: "Suco", price: "10,00", note: "maracujá, cupuaçu, graviola, morango ou manga" },
+      { name: "Chocolate quente", price: "15,00", image: imgChocolateQuente },
+      { name: "Chá mate com limão", price: "10,00", image: imgChaMate },
+      { name: "Chá mate abacaxi/hortelã", price: "10,00", image: imgChaMate },
+      { name: "Chá mate", price: "8,00", image: imgChaMate },
+      { name: "Chá", price: "5,00", image: imgCha },
+      { name: "Achocolatado", price: "4,00", image: imgChocolateQuente },
+      { name: "Suco na água", price: "8,00", image: imgSuco },
+      { name: "Suco", price: "10,00", note: "maracujá, cupuaçu, graviola, morango ou manga", image: imgSuco },
       { name: "Suco ao leite", price: "+2,00", note: "acréscimo" },
-      { name: "Água na garrafa", price: "3,00" },
-      { name: "Água no copo", price: "2,00" },
-      { name: "Água com gás", price: "4,00" },
+      { name: "Água na garrafa", price: "3,00", image: imgAgua },
+      { name: "Água no copo", price: "2,00", image: imgAgua },
+      { name: "Água com gás", price: "4,00", image: imgAgua },
     ],
   },
   {
     id: "alcoolicas",
     title: "Bebidas Alcoólicas",
     items: [
-      { name: "Dose de whisky", price: "10,00" },
-      { name: "Dose de licor", price: "5,00" },
-      { name: "Dose de amarula", price: "10,00" },
+      { name: "Dose de whisky", price: "10,00", image: imgWhisky },
+      { name: "Dose de licor", price: "5,00", image: imgAmarula },
+      { name: "Dose de amarula", price: "10,00", image: imgAmarula },
     ],
   },
   {
     id: "refri",
     title: "Refrigerante",
     items: [
-      { name: "Refrigerante lata pequena", price: "5,00" },
-      { name: "Refrigerante lata grande", price: "7,00" },
-      { name: "Aqua Fresh", price: "7,00" },
-      { name: "H2O", price: "7,00" },
-      { name: "Grapette", price: "5,00" },
+      { name: "Refrigerante lata pequena", price: "5,00", image: imgRefriLata },
+      { name: "Refrigerante lata grande", price: "7,00", image: imgRefriLata },
+      { name: "Aqua Fresh", price: "7,00", image: imgAquaFresh },
+      { name: "H2O", price: "7,00", image: imgAquaFresh },
+      { name: "Grapette", price: "5,00", image: imgRefriLata },
     ],
   },
 ];
@@ -184,7 +247,6 @@ const SECTIONS: Section[] = [
 const PIX_KEY = "84213122259";
 const WHATSAPP_NUMBER = "558421312259";
 
-/** Parse "20,00" or "+2,00" → 20 or 2 */
 function priceToNumber(price: string): number {
   return parseFloat(price.replace(/[+\s]/g, "").replace(",", "."));
 }
@@ -240,7 +302,7 @@ function Logo({ className = "" }: { className?: string }) {
   );
 }
 
-// ----- Cart Types & Hook -----
+// ----- Cart -----
 type CartLine = { name: string; unitPrice: number; qty: number; note?: string };
 
 function useCart() {
@@ -277,6 +339,29 @@ function useCart() {
   const total = items.reduce((s, l) => s + l.qty * l.unitPrice, 0);
 
   return { items, count, total, add, inc, dec, clear };
+}
+
+// ----- Animated count-up for total -----
+function useCountUp(value: number, duration = 260) {
+  const [display, setDisplay] = useState(value);
+  const fromRef = useRef(value);
+  useEffect(() => {
+    const from = fromRef.current;
+    const to = value;
+    if (from === to) return;
+    const start = performance.now();
+    let raf = 0;
+    const tick = (now: number) => {
+      const t = Math.min(1, (now - start) / duration);
+      const eased = 1 - Math.pow(1 - t, 2);
+      setDisplay(from + (to - from) * eased);
+      if (t < 1) raf = requestAnimationFrame(tick);
+      else fromRef.current = to;
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [value, duration]);
+  return display;
 }
 
 // ----- Scroll reveal -----
@@ -349,10 +434,7 @@ function SectionBlock({
           <h3 className="font-display text-3xl font-bold leading-none sm:text-4xl">
             {section.title}
           </h3>
-          <span
-            className="h-px flex-1"
-            style={{ backgroundColor: "var(--gold)", opacity: 0.4 }}
-          />
+          <span className="h-px flex-1" style={{ backgroundColor: "var(--gold)", opacity: 0.4 }} />
           <span className="font-script text-lg" style={{ color: "var(--gold)" }}>
             {String(index + 1).padStart(2, "0")}
           </span>
@@ -366,16 +448,20 @@ function SectionBlock({
                 key={i}
                 className={`${highlight ? "" : "item-row"} group flex items-center gap-3`}
               >
-                {item.image && (
-                  <img
-                    src={item.image}
-                    alt={item.name}
-                    loading="lazy"
-                    width={64}
-                    height={64}
-                    className="h-14 w-14 shrink-0 rounded-lg object-cover shadow-sm sm:h-16 sm:w-16"
-                    style={{ border: "1px solid color-mix(in oklab, var(--gold) 40%, transparent)" }}
-                  />
+                {item.image ? (
+                  <div
+                    className="dish-thumb h-14 w-14 shrink-0 shadow-sm sm:h-16 sm:w-16"
+                  >
+                    <img
+                      src={item.image}
+                      alt={item.name}
+                      loading="lazy"
+                      width={64}
+                      height={64}
+                    />
+                  </div>
+                ) : (
+                  <div className="h-14 w-14 shrink-0 sm:h-16 sm:w-16" aria-hidden />
                 )}
                 <div className="min-w-0 flex-1">
                   <div className="flex items-baseline gap-2">
@@ -388,12 +474,6 @@ function SectionBlock({
                       </span>
                     )}
                   </div>
-                  {!item.image && (
-                    <span
-                      aria-hidden
-                      className="dotted-leader mt-1 block h-[3px] w-full opacity-30"
-                    />
-                  )}
                 </div>
                 <span
                   className="shrink-0 whitespace-nowrap font-display text-base font-bold tabular-nums sm:text-lg"
@@ -406,7 +486,7 @@ function SectionBlock({
                     type="button"
                     aria-label={`Adicionar ${item.name}`}
                     onClick={() => onAdd(item)}
-                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition-transform duration-200 ease-out hover:scale-105 active:scale-95"
+                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition-transform duration-200 ease-out hover:scale-110 active:scale-90"
                     style={{
                       backgroundColor: "var(--ink)",
                       color: "var(--sunflower)",
@@ -422,10 +502,7 @@ function SectionBlock({
         </ul>
 
         {section.footnote && (
-          <p
-            className="mt-5 text-center font-script text-lg"
-            style={{ color: "var(--gold)" }}
-          >
+          <p className="mt-5 text-center font-script text-lg" style={{ color: "var(--gold)" }}>
             {section.footnote}
           </p>
         )}
@@ -434,8 +511,9 @@ function SectionBlock({
   );
 }
 
-// ----- Cart Dialog with payment flow -----
-type Step = "cart" | "payment" | "pix" | "card";
+// ----- Cart Dialog with order type + payment flow -----
+type OrderType = "dine-in" | "takeout";
+type Step = "cart" | "order-type" | "payment" | "pix" | "card" | "dine-confirm";
 
 function CartDialog({
   open,
@@ -449,7 +527,10 @@ function CartDialog({
   const [step, setStep] = useState<Step>("cart");
   const [table, setTable] = useState("");
   const [copied, setCopied] = useState(false);
-  const [method, setMethod] = useState<"Pix" | "Cartão" | null>(null);
+  const [orderType, setOrderType] = useState<OrderType | null>(null);
+  const [method, setMethod] = useState<"Pix" | "Cartão" | "Presencial" | null>(null);
+
+  const animatedTotal = useCountUp(cart.total);
 
   useEffect(() => {
     if (open) setStep("cart");
@@ -457,11 +538,16 @@ function CartDialog({
 
   const buildMessage = () => {
     const lines = cart.items
-      .map((l) => `• ${l.name}${l.note ? ` (${l.note})` : ""} x${l.qty} — R$ ${formatBRL(l.qty * l.unitPrice)}`)
+      .map(
+        (l) =>
+          `• ${l.name}${l.note ? ` (${l.note})` : ""} x${l.qty} — R$ ${formatBRL(l.qty * l.unitPrice)}`,
+      )
       .join("\n");
+    const typeLabel = orderType === "dine-in" ? "Comer aqui" : "Retirar / Delivery";
+    const location = orderType === "dine-in" ? `Mesa: ${table || "—"}` : `Retirada / Delivery`;
     return (
       `*Pedido - Cafetteria Bistrô*\n` +
-      `Mesa: ${table || "—"}\n\n` +
+      `${typeLabel}\n${location}\n\n` +
       `${lines}\n\n` +
       `*Total:* R$ ${formatBRL(cart.total)}\n` +
       `*Pagamento:* ${method ?? "—"}`
@@ -472,7 +558,12 @@ function CartDialog({
     const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(buildMessage())}`;
     window.open(url, "_blank", "noopener,noreferrer");
     onOpenChange(false);
-    setTimeout(() => cart.clear(), 400);
+    setTimeout(() => {
+      cart.clear();
+      setTable("");
+      setOrderType(null);
+      setMethod(null);
+    }, 400);
   };
 
   const copyPix = async () => {
@@ -486,7 +577,7 @@ function CartDialog({
     }
   };
 
-  const canProceed = cart.count > 0 && table.trim().length > 0;
+  const canProceed = cart.count > 0;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -503,7 +594,7 @@ function CartDialog({
                   ({cart.count} {cart.count === 1 ? "item" : "itens"})
                 </span>
               </DialogTitle>
-              <DialogDescription>Revise os itens e informe sua mesa.</DialogDescription>
+              <DialogDescription>Revise os itens antes de continuar.</DialogDescription>
             </DialogHeader>
 
             {cart.count === 0 ? (
@@ -534,17 +625,20 @@ function CartDialog({
                         <button
                           onClick={() => cart.dec(l.k)}
                           aria-label="Diminuir"
-                          className="flex h-7 w-7 items-center justify-center rounded-full bg-transparent hover:bg-black/10"
+                          className="flex h-7 w-7 items-center justify-center rounded-full bg-transparent transition-transform duration-150 hover:bg-black/10 active:scale-90"
                         >
                           <Minus className="h-3.5 w-3.5" />
                         </button>
-                        <span className="w-5 text-center text-sm font-bold tabular-nums">
+                        <span
+                          key={l.qty}
+                          className="tick-in w-5 text-center text-sm font-bold tabular-nums"
+                        >
                           {l.qty}
                         </span>
                         <button
                           onClick={() => cart.inc(l.k)}
                           aria-label="Aumentar"
-                          className="flex h-7 w-7 items-center justify-center rounded-full"
+                          className="flex h-7 w-7 items-center justify-center rounded-full transition-transform duration-150 active:scale-90"
                           style={{ backgroundColor: "var(--ink)", color: "var(--sunflower)" }}
                         >
                           <Plus className="h-3.5 w-3.5" />
@@ -559,32 +653,21 @@ function CartDialog({
                   style={{ backgroundColor: "color-mix(in oklab, var(--sunflower) 15%, transparent)" }}
                 >
                   <span className="font-display text-lg font-bold">Total</span>
-                  <span className="font-display text-2xl font-bold" style={{ color: "var(--ink)" }}>
-                    R$ {formatBRL(cart.total)}
+                  <span
+                    className="font-display text-2xl font-bold tabular-nums"
+                    style={{ color: "var(--ink)" }}
+                  >
+                    R$ {formatBRL(animatedTotal)}
                   </span>
                 </div>
 
-                <label className="mt-3 block">
-                  <span className="mb-1 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                    Número da mesa
-                  </span>
-                  <Input
-                    type="text"
-                    inputMode="numeric"
-                    placeholder="Ex: 12"
-                    value={table}
-                    onChange={(e) => setTable(e.target.value)}
-                    className="text-base"
-                  />
-                </label>
-
                 <button
-                  onClick={() => setStep("payment")}
+                  onClick={() => setStep("order-type")}
                   disabled={!canProceed}
                   className="mt-4 w-full rounded-full py-3 text-sm font-bold uppercase tracking-widest transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
                   style={{ backgroundColor: "var(--ink)", color: "var(--sunflower)" }}
                 >
-                  Escolher pagamento
+                  Continuar
                 </button>
                 <button
                   onClick={() => cart.clear()}
@@ -597,11 +680,141 @@ function CartDialog({
           </>
         )}
 
+        {step === "order-type" && (
+          <>
+            <DialogHeader>
+              <DialogTitle className="font-display text-2xl">Onde você vai comer?</DialogTitle>
+              <DialogDescription>Escolha para continuar com o pedido.</DialogDescription>
+            </DialogHeader>
+
+            <div className="grid gap-3 pt-2 sm:grid-cols-2">
+              <button
+                onClick={() => setOrderType("dine-in")}
+                className={`flex flex-col items-center gap-2 rounded-xl p-6 transition-transform duration-200 hover:scale-[1.02] active:scale-95 ${
+                  orderType === "dine-in" ? "ring-2 ring-offset-2" : ""
+                }`}
+                style={{
+                  border: "2px dashed var(--gold)",
+                  backgroundColor:
+                    orderType === "dine-in"
+                      ? "color-mix(in oklab, var(--sunflower) 25%, var(--card))"
+                      : "color-mix(in oklab, var(--sunflower) 8%, var(--card))",
+                }}
+              >
+                <Utensils className="h-10 w-10" style={{ color: "var(--gold)" }} />
+                <span className="font-display text-lg font-bold">Vou comer aqui</span>
+                <span className="text-center text-xs text-muted-foreground">
+                  Atendimento na mesa
+                </span>
+              </button>
+              <button
+                onClick={() => setOrderType("takeout")}
+                className={`flex flex-col items-center gap-2 rounded-xl p-6 transition-transform duration-200 hover:scale-[1.02] active:scale-95 ${
+                  orderType === "takeout" ? "ring-2 ring-offset-2" : ""
+                }`}
+                style={{
+                  border: "2px dashed var(--gold)",
+                  backgroundColor:
+                    orderType === "takeout"
+                      ? "color-mix(in oklab, var(--sunflower) 25%, var(--card))"
+                      : "color-mix(in oklab, var(--sunflower) 8%, var(--card))",
+                }}
+              >
+                <Bike className="h-10 w-10" style={{ color: "var(--gold)" }} />
+                <span className="font-display text-lg font-bold">Retirar / Delivery</span>
+                <span className="text-center text-xs text-muted-foreground">
+                  Pagar por Pix ou na retirada
+                </span>
+              </button>
+            </div>
+
+            {orderType === "dine-in" && (
+              <label className="mt-4 block">
+                <span className="mb-1 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  Número da mesa
+                </span>
+                <Input
+                  type="text"
+                  inputMode="numeric"
+                  placeholder="Ex: 12"
+                  value={table}
+                  onChange={(e) => setTable(e.target.value)}
+                  className="text-base"
+                />
+              </label>
+            )}
+
+            <button
+              onClick={() => {
+                if (orderType === "dine-in") {
+                  setMethod("Presencial");
+                  setStep("dine-confirm");
+                } else {
+                  setStep("payment");
+                }
+              }}
+              disabled={!orderType || (orderType === "dine-in" && !table.trim())}
+              className="mt-4 w-full rounded-full py-3 text-sm font-bold uppercase tracking-widest transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
+              style={{ backgroundColor: "var(--ink)", color: "var(--sunflower)" }}
+            >
+              Continuar
+            </button>
+            <button
+              onClick={() => setStep("cart")}
+              className="mt-2 w-full text-xs text-muted-foreground underline underline-offset-4"
+            >
+              ← Voltar ao carrinho
+            </button>
+          </>
+        )}
+
+        {step === "dine-confirm" && (
+          <>
+            <DialogHeader>
+              <DialogTitle className="font-display text-2xl">Pedido pronto!</DialogTitle>
+              <DialogDescription>
+                Mesa <strong>{table}</strong> · Total <strong>R$ {formatBRL(cart.total)}</strong>
+              </DialogDescription>
+            </DialogHeader>
+
+            <div
+              className="rounded-xl p-5 text-center"
+              style={{
+                border: "2px dashed var(--gold)",
+                backgroundColor: "color-mix(in oklab, var(--sunflower) 12%, var(--card))",
+              }}
+            >
+              <Utensils className="mx-auto mb-2 h-10 w-10" style={{ color: "var(--gold)" }} />
+              <p className="font-script text-2xl leading-snug" style={{ color: "var(--ink)" }}>
+                Pedido enviado!
+              </p>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Um atendente já está a caminho para acompanhar o pagamento e confirmar seu pedido.
+              </p>
+            </div>
+
+            <button
+              onClick={sendWhatsApp}
+              className="mt-4 flex w-full items-center justify-center gap-2 rounded-full py-3 text-sm font-bold uppercase tracking-widest transition-transform hover:scale-[1.02] active:scale-95"
+              style={{ backgroundColor: "#25D366", color: "white" }}
+            >
+              <MessageCircle className="h-4 w-4" />
+              Enviar pedido via WhatsApp
+            </button>
+            <button
+              onClick={() => setStep("order-type")}
+              className="mt-2 w-full text-xs text-muted-foreground underline underline-offset-4"
+            >
+              ← Voltar
+            </button>
+          </>
+        )}
+
         {step === "payment" && (
           <>
             <DialogHeader>
               <DialogTitle className="font-display text-2xl">Forma de pagamento</DialogTitle>
-              <DialogDescription>Como você prefere pagar?</DialogDescription>
+              <DialogDescription>Retirada / Delivery — como prefere pagar?</DialogDescription>
             </DialogHeader>
 
             <div className="grid gap-3 pt-2 sm:grid-cols-2">
@@ -610,7 +823,7 @@ function CartDialog({
                   setMethod("Pix");
                   setStep("pix");
                 }}
-                className="group flex flex-col items-center gap-2 rounded-xl p-6 transition-all hover:scale-[1.02]"
+                className="flex flex-col items-center gap-2 rounded-xl p-6 transition-transform duration-200 hover:scale-[1.02] active:scale-95"
                 style={{
                   border: "2px dashed var(--gold)",
                   backgroundColor: "color-mix(in oklab, var(--sunflower) 8%, var(--card))",
@@ -627,7 +840,7 @@ function CartDialog({
                   setMethod("Cartão");
                   setStep("card");
                 }}
-                className="group flex flex-col items-center gap-2 rounded-xl p-6 transition-all hover:scale-[1.02]"
+                className="flex flex-col items-center gap-2 rounded-xl p-6 transition-transform duration-200 hover:scale-[1.02] active:scale-95"
                 style={{
                   border: "2px dashed var(--gold)",
                   backgroundColor: "color-mix(in oklab, var(--sunflower) 8%, var(--card))",
@@ -636,16 +849,16 @@ function CartDialog({
                 <CreditCard className="h-10 w-10" style={{ color: "var(--gold)" }} />
                 <span className="font-display text-lg font-bold">Cartão</span>
                 <span className="text-center text-xs text-muted-foreground">
-                  Atendente leva a comanda
+                  Pagamento na retirada
                 </span>
               </button>
             </div>
 
             <button
-              onClick={() => setStep("cart")}
+              onClick={() => setStep("order-type")}
               className="mt-3 w-full text-xs text-muted-foreground underline underline-offset-4"
             >
-              ← Voltar ao carrinho
+              ← Voltar
             </button>
           </>
         )}
@@ -655,7 +868,7 @@ function CartDialog({
             <DialogHeader>
               <DialogTitle className="font-display text-2xl">Pagamento via Pix</DialogTitle>
               <DialogDescription>
-                Total <strong>R$ {formatBRL(cart.total)}</strong> — Mesa {table}
+                Total <strong>R$ {formatBRL(cart.total)}</strong> — Retirada / Delivery
               </DialogDescription>
             </DialogHeader>
 
@@ -697,7 +910,7 @@ function CartDialog({
 
               <button
                 onClick={sendWhatsApp}
-                className="mt-2 flex w-full items-center justify-center gap-2 rounded-full py-3 text-sm font-bold uppercase tracking-widest"
+                className="mt-2 flex w-full items-center justify-center gap-2 rounded-full py-3 text-sm font-bold uppercase tracking-widest transition-transform hover:scale-[1.02] active:scale-95"
                 style={{ backgroundColor: "#25D366", color: "white" }}
               >
                 <MessageCircle className="h-4 w-4" />
@@ -716,9 +929,9 @@ function CartDialog({
         {step === "card" && (
           <>
             <DialogHeader>
-              <DialogTitle className="font-display text-2xl">Pagamento no cartão</DialogTitle>
+              <DialogTitle className="font-display text-2xl">Cartão na retirada</DialogTitle>
               <DialogDescription>
-                Total <strong>R$ {formatBRL(cart.total)}</strong> — Mesa {table}
+                Total <strong>R$ {formatBRL(cart.total)}</strong> — Retirada / Delivery
               </DialogDescription>
             </DialogHeader>
 
@@ -729,12 +942,9 @@ function CartDialog({
                 backgroundColor: "color-mix(in oklab, var(--sunflower) 10%, var(--card))",
               }}
             >
-              <CreditCard
-                className="mx-auto mb-2 h-10 w-10"
-                style={{ color: "var(--gold)" }}
-              />
+              <CreditCard className="mx-auto mb-2 h-10 w-10" style={{ color: "var(--gold)" }} />
               <p className="font-script text-2xl leading-snug" style={{ color: "var(--ink)" }}>
-                Um atendente já vai até sua mesa com a comanda 
+                Pagamento na retirada 
               </p>
               <p className="mt-2 text-xs text-muted-foreground">
                 Prepare seu cartão · Débito, crédito ou aproximação
@@ -743,7 +953,7 @@ function CartDialog({
 
             <button
               onClick={sendWhatsApp}
-              className="mt-4 flex w-full items-center justify-center gap-2 rounded-full py-3 text-sm font-bold uppercase tracking-widest"
+              className="mt-4 flex w-full items-center justify-center gap-2 rounded-full py-3 text-sm font-bold uppercase tracking-widest transition-transform hover:scale-[1.02] active:scale-95"
               style={{ backgroundColor: "#25D366", color: "white" }}
             >
               <MessageCircle className="h-4 w-4" />
@@ -769,6 +979,15 @@ function Menu() {
   const chipsRef = useRef<HTMLDivElement>(null);
   const cart = useCart();
 
+  // Bounce FAB badge whenever count increments
+  const [badgeBounce, setBadgeBounce] = useState(0);
+  const prevCount = useRef(cart.count);
+  useEffect(() => {
+    if (cart.count > prevCount.current) setBadgeBounce((v) => v + 1);
+    prevCount.current = cart.count;
+  }, [cart.count]);
+
+  // Scroll-spy: highlight active chip when its section is in viewport
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -803,6 +1022,8 @@ function Menu() {
     toast.success(`${item.name} adicionado`, { duration: 1400 });
   };
 
+  const animatedFabTotal = useCountUp(cart.total);
+
   return (
     <div className="min-h-screen">
       {/* Header */}
@@ -820,9 +1041,7 @@ function Menu() {
                 </div>
                 <Sunflower size={22} spin className="shrink-0" />
               </div>
-              <h1 className="font-display text-2xl font-bold leading-tight sm:text-3xl">
-                Bistrô
-              </h1>
+              <h1 className="font-display text-2xl font-bold leading-tight sm:text-3xl">Bistrô</h1>
               <p className="mt-0.5 text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
                 Aberto · Seg a Sáb · 7h — 19h
               </p>
@@ -941,7 +1160,9 @@ function Menu() {
                   Endereço
                 </div>
                 <p className="mt-1 text-sm opacity-90 group-hover:opacity-100">
-                  R. Brg. Eduardo Gomes, 202b<br />Emaús, Parnamirim - RN
+                  R. Brg. Eduardo Gomes, 202b
+                  <br />
+                  Emaús, Parnamirim - RN
                 </p>
               </a>
               <a
@@ -1001,8 +1222,11 @@ function Menu() {
           }}
         >
           <ShoppingBag className="h-5 w-5" />
-          <span>
-            Carrinho ({cart.count}) · R$ {formatBRL(cart.total)}
+          <span
+            key={badgeBounce}
+            className="bounce-once inline-flex items-center gap-2 tabular-nums"
+          >
+            🛒 Carrinho ({cart.count}) · R$ {formatBRL(animatedFabTotal)}
           </span>
         </button>
       )}
