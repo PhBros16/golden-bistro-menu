@@ -4,10 +4,6 @@ import {
   Plus,
   Minus,
   ShoppingBag,
-  Copy,
-  Check,
-  QrCode,
-  CreditCard,
   MessageCircle,
   Utensils,
   Bike,
@@ -244,7 +240,7 @@ const SECTIONS: Section[] = [
   },
 ];
 
-const PIX_KEY = "84213122259";
+
 const WHATSAPP_NUMBER = "5584991362838"; // TEMP: número de teste até liberação dos donos
 
 function priceToNumber(price: string): number {
@@ -303,7 +299,7 @@ function Logo({ className = "" }: { className?: string }) {
 }
 
 // ----- Cart -----
-type CartLine = { name: string; unitPrice: number; qty: number; note?: string };
+type CartLine = { name: string; unitPrice: number; qty: number; note?: string; obs?: string };
 
 const CART_STORAGE_KEY = "cafetteria-cart-v1";
 
@@ -352,14 +348,17 @@ function useCart() {
       }
       return { ...p, [k]: { ...l, qty: l.qty - 1 } };
     });
+  const setObs = (k: string, obs: string) =>
+    setLines((p) => (p[k] ? { ...p, [k]: { ...p[k], obs } } : p));
   const clear = () => setLines({});
 
   const items = Object.entries(lines).map(([k, l]) => ({ k, ...l }));
   const count = items.reduce((s, l) => s + l.qty, 0);
   const total = items.reduce((s, l) => s + l.qty * l.unitPrice, 0);
 
-  return { items, count, total, add, inc, dec, clear };
+  return { items, count, total, add, inc, dec, setObs, clear };
 }
+
 
 // ----- Animated count-up for total -----
 function useCountUp(value: number, duration = 260) {
@@ -533,7 +532,7 @@ function SectionBlock({
 
 // ----- Cart Dialog with order type + payment flow -----
 type OrderType = "dine-in" | "takeout";
-type Step = "cart" | "order-type" | "payment" | "pix" | "card" | "dine-confirm";
+type Step = "cart" | "order-type" | "dine-confirm" | "takeout-confirm";
 
 function CartDialog({
   open,
@@ -546,9 +545,7 @@ function CartDialog({
 }) {
   const [step, setStep] = useState<Step>("cart");
   const [table, setTable] = useState("");
-  const [copied, setCopied] = useState(false);
   const [orderType, setOrderType] = useState<OrderType | null>(null);
-  const [method, setMethod] = useState<"Pix" | "Cartão" | "Presencial" | null>(null);
 
   const animatedTotal = useCountUp(cart.total);
 
@@ -558,10 +555,11 @@ function CartDialog({
 
   const buildMessage = () => {
     const lines = cart.items
-      .map(
-        (l) =>
-          `• ${l.name}${l.note ? ` (${l.note})` : ""} x${l.qty} — R$ ${formatBRL(l.qty * l.unitPrice)}`,
-      )
+      .map((l) => {
+        const variant = l.note ? ` (${l.note})` : "";
+        const obs = l.obs?.trim() ? `\n   ↳ obs: ${l.obs.trim()}` : "";
+        return `• ${l.name}${variant} x${l.qty} — R$ ${formatBRL(l.qty * l.unitPrice)}${obs}`;
+      })
       .join("\n");
     const typeLabel = orderType === "dine-in" ? "Comer aqui" : "Retirar / Delivery";
     const location = orderType === "dine-in" ? `Mesa: ${table || "—"}` : `Retirada / Delivery`;
@@ -569,8 +567,7 @@ function CartDialog({
       `*Pedido - Cafetteria Bistrô*\n` +
       `${typeLabel}\n${location}\n\n` +
       `${lines}\n\n` +
-      `*Total:* R$ ${formatBRL(cart.total)}\n` +
-      `*Pagamento:* ${method ?? "—"}`
+      `*Total:* R$ ${formatBRL(cart.total)}`
     );
   };
 
@@ -582,22 +579,11 @@ function CartDialog({
       cart.clear();
       setTable("");
       setOrderType(null);
-      setMethod(null);
     }, 400);
   };
 
-  const copyPix = async () => {
-    try {
-      await navigator.clipboard.writeText(PIX_KEY);
-      setCopied(true);
-      toast.success("Chave Pix copiada!");
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      toast.error("Não foi possível copiar");
-    }
-  };
-
   const canProceed = cart.count > 0;
+
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -625,45 +611,59 @@ function CartDialog({
               <>
                 <ul className="divide-y" style={{ borderColor: "var(--border)" }}>
                   {cart.items.map((l) => (
-                    <li key={l.k} className="flex items-center gap-3 py-3">
-                      <div className="min-w-0 flex-1">
-                        <div className="truncate text-sm font-medium">{l.name}</div>
-                        {l.note && (
-                          <div className="text-xs italic text-muted-foreground">{l.note}</div>
-                        )}
-                        <div className="mt-0.5 text-xs text-muted-foreground">
-                          R$ {formatBRL(l.unitPrice)} · Subtotal R${" "}
-                          <span className="font-semibold" style={{ color: "var(--gold)" }}>
-                            {formatBRL(l.qty * l.unitPrice)}
+                    <li key={l.k} className="flex flex-col gap-2 py-3">
+                      <div className="flex items-center gap-3">
+                        <div className="min-w-0 flex-1">
+                          <div className="truncate text-sm font-medium">{l.name}</div>
+                          {l.note && (
+                            <div className="text-xs italic text-muted-foreground">{l.note}</div>
+                          )}
+                          <div className="mt-0.5 text-xs text-muted-foreground">
+                            R$ {formatBRL(l.unitPrice)} · Subtotal R${" "}
+                            <span className="font-semibold" style={{ color: "var(--gold)" }}>
+                              {formatBRL(l.qty * l.unitPrice)}
+                            </span>
+                          </div>
+                        </div>
+                        <div
+                          className="flex items-center gap-2 rounded-full px-1 py-1"
+                          style={{ backgroundColor: "var(--muted)" }}
+                        >
+                          <button
+                            onClick={() => cart.dec(l.k)}
+                            aria-label="Diminuir"
+                            className="flex h-7 w-7 items-center justify-center rounded-full bg-transparent transition-transform duration-150 hover:bg-black/10 active:scale-90"
+                          >
+                            <Minus className="h-3.5 w-3.5" />
+                          </button>
+                          <span
+                            key={l.qty}
+                            className="tick-in w-5 text-center text-sm font-bold tabular-nums"
+                          >
+                            {l.qty}
                           </span>
+                          <button
+                            onClick={() => cart.inc(l.k)}
+                            aria-label="Aumentar"
+                            className="flex h-7 w-7 items-center justify-center rounded-full transition-transform duration-150 active:scale-90"
+                            style={{ backgroundColor: "var(--ink)", color: "var(--sunflower)" }}
+                          >
+                            <Plus className="h-3.5 w-3.5" />
+                          </button>
                         </div>
                       </div>
-                      <div
-                        className="flex items-center gap-2 rounded-full px-1 py-1"
-                        style={{ backgroundColor: "var(--muted)" }}
-                      >
-                        <button
-                          onClick={() => cart.dec(l.k)}
-                          aria-label="Diminuir"
-                          className="flex h-7 w-7 items-center justify-center rounded-full bg-transparent transition-transform duration-150 hover:bg-black/10 active:scale-90"
-                        >
-                          <Minus className="h-3.5 w-3.5" />
-                        </button>
-                        <span
-                          key={l.qty}
-                          className="tick-in w-5 text-center text-sm font-bold tabular-nums"
-                        >
-                          {l.qty}
-                        </span>
-                        <button
-                          onClick={() => cart.inc(l.k)}
-                          aria-label="Aumentar"
-                          className="flex h-7 w-7 items-center justify-center rounded-full transition-transform duration-150 active:scale-90"
-                          style={{ backgroundColor: "var(--ink)", color: "var(--sunflower)" }}
-                        >
-                          <Plus className="h-3.5 w-3.5" />
-                        </button>
-                      </div>
+                      <Input
+                        type="text"
+                        value={l.obs ?? ""}
+                        onChange={(e) => cart.setObs(l.k, e.target.value)}
+                        placeholder="Observação (ex: sem cebola, ponto da carne)"
+                        maxLength={120}
+                        className="h-8 text-xs"
+                        style={{
+                          border: "1px dashed color-mix(in oklab, var(--gold) 55%, transparent)",
+                          backgroundColor: "color-mix(in oklab, var(--sunflower) 6%, var(--card))",
+                        }}
+                      />
                     </li>
                   ))}
                 </ul>
@@ -766,12 +766,7 @@ function CartDialog({
 
             <button
               onClick={() => {
-                if (orderType === "dine-in") {
-                  setMethod("Presencial");
-                  setStep("dine-confirm");
-                } else {
-                  setStep("payment");
-                }
+                setStep(orderType === "dine-in" ? "dine-confirm" : "takeout-confirm");
               }}
               disabled={!orderType || (orderType === "dine-in" && !table.trim())}
               className="mt-4 w-full rounded-full py-3 text-sm font-bold uppercase tracking-widest transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
@@ -830,128 +825,12 @@ function CartDialog({
           </>
         )}
 
-        {step === "payment" && (
+        {step === "takeout-confirm" && (
           <>
             <DialogHeader>
-              <DialogTitle className="font-display text-2xl">Forma de pagamento</DialogTitle>
-              <DialogDescription>Retirada / Delivery — como prefere pagar?</DialogDescription>
-            </DialogHeader>
-
-            <div className="grid gap-3 pt-2 sm:grid-cols-2">
-              <button
-                onClick={() => {
-                  setMethod("Pix");
-                  setStep("pix");
-                }}
-                className="flex flex-col items-center gap-2 rounded-xl p-6 transition-transform duration-200 hover:scale-[1.02] active:scale-95"
-                style={{
-                  border: "2px dashed var(--gold)",
-                  backgroundColor: "color-mix(in oklab, var(--sunflower) 8%, var(--card))",
-                }}
-              >
-                <QrCode className="h-10 w-10" style={{ color: "var(--gold)" }} />
-                <span className="font-display text-lg font-bold">Pix</span>
-                <span className="text-center text-xs text-muted-foreground">
-                  QR code e chave copia-e-cola
-                </span>
-              </button>
-              <button
-                onClick={() => {
-                  setMethod("Cartão");
-                  setStep("card");
-                }}
-                className="flex flex-col items-center gap-2 rounded-xl p-6 transition-transform duration-200 hover:scale-[1.02] active:scale-95"
-                style={{
-                  border: "2px dashed var(--gold)",
-                  backgroundColor: "color-mix(in oklab, var(--sunflower) 8%, var(--card))",
-                }}
-              >
-                <CreditCard className="h-10 w-10" style={{ color: "var(--gold)" }} />
-                <span className="font-display text-lg font-bold">Cartão</span>
-                <span className="text-center text-xs text-muted-foreground">
-                  Pagamento na retirada
-                </span>
-              </button>
-            </div>
-
-            <button
-              onClick={() => setStep("order-type")}
-              className="mt-3 w-full text-xs text-muted-foreground underline underline-offset-4"
-            >
-              ← Voltar
-            </button>
-          </>
-        )}
-
-        {step === "pix" && (
-          <>
-            <DialogHeader>
-              <DialogTitle className="font-display text-2xl">Pagamento via Pix</DialogTitle>
+              <DialogTitle className="font-display text-2xl">Confirme seu pedido</DialogTitle>
               <DialogDescription>
-                Total <strong>R$ {formatBRL(cart.total)}</strong> — Retirada / Delivery
-              </DialogDescription>
-            </DialogHeader>
-
-            <div className="flex flex-col items-center gap-4 pt-2">
-              <div
-                className="rounded-xl bg-white p-3"
-                style={{ border: "2px dashed var(--gold)" }}
-              >
-                <img
-                  src={`https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(
-                    PIX_KEY,
-                  )}`}
-                  alt="QR code Pix"
-                  width={220}
-                  height={220}
-                />
-              </div>
-
-              <div className="w-full">
-                <div className="mb-1 text-center text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  Chave Pix (copia e cola)
-                </div>
-                <button
-                  onClick={copyPix}
-                  className="flex w-full items-center justify-between gap-2 rounded-lg p-3 text-left transition-colors hover:opacity-80"
-                  style={{
-                    backgroundColor: "var(--muted)",
-                    border: "1px dashed color-mix(in oklab, var(--gold) 60%, transparent)",
-                  }}
-                >
-                  <span className="truncate font-mono text-sm">{PIX_KEY}</span>
-                  {copied ? (
-                    <Check className="h-4 w-4 shrink-0" style={{ color: "var(--gold)" }} />
-                  ) : (
-                    <Copy className="h-4 w-4 shrink-0" />
-                  )}
-                </button>
-              </div>
-
-              <button
-                onClick={sendWhatsApp}
-                className="mt-2 flex w-full items-center justify-center gap-2 rounded-full py-3 text-sm font-bold uppercase tracking-widest transition-transform hover:scale-[1.02] active:scale-95"
-                style={{ backgroundColor: "#25D366", color: "white" }}
-              >
-                <MessageCircle className="h-4 w-4" />
-                Enviar pedido via WhatsApp
-              </button>
-              <button
-                onClick={() => setStep("payment")}
-                className="text-xs text-muted-foreground underline underline-offset-4"
-              >
-                ← Voltar
-              </button>
-            </div>
-          </>
-        )}
-
-        {step === "card" && (
-          <>
-            <DialogHeader>
-              <DialogTitle className="font-display text-2xl">Cartão na retirada</DialogTitle>
-              <DialogDescription>
-                Total <strong>R$ {formatBRL(cart.total)}</strong> — Retirada / Delivery
+                Retirada / Delivery · Total <strong>R$ {formatBRL(cart.total)}</strong>
               </DialogDescription>
             </DialogHeader>
 
@@ -959,15 +838,16 @@ function CartDialog({
               className="rounded-xl p-5 text-center"
               style={{
                 border: "2px dashed var(--gold)",
-                backgroundColor: "color-mix(in oklab, var(--sunflower) 10%, var(--card))",
+                backgroundColor: "color-mix(in oklab, var(--sunflower) 12%, var(--card))",
               }}
             >
-              <CreditCard className="mx-auto mb-2 h-10 w-10" style={{ color: "var(--gold)" }} />
+              <Bike className="mx-auto mb-2 h-10 w-10" style={{ color: "var(--gold)" }} />
               <p className="font-script text-2xl leading-snug" style={{ color: "var(--ink)" }}>
-                Pagamento na retirada 
+                Revise seu pedido
               </p>
-              <p className="mt-2 text-xs text-muted-foreground">
-                Prepare seu cartão · Débito, crédito ou aproximação
+              <p className="mt-2 text-sm text-muted-foreground">
+                Ao enviar, um atendente confirma o pedido pelo WhatsApp e combina o pagamento
+                (Pix ou cartão na retirada).
               </p>
             </div>
 
@@ -977,16 +857,17 @@ function CartDialog({
               style={{ backgroundColor: "#25D366", color: "white" }}
             >
               <MessageCircle className="h-4 w-4" />
-              Enviar pedido via WhatsApp
+              Enviar pedido para a cozinha
             </button>
             <button
-              onClick={() => setStep("payment")}
+              onClick={() => setStep("order-type")}
               className="mt-2 w-full text-xs text-muted-foreground underline underline-offset-4"
             >
               ← Voltar
             </button>
           </>
         )}
+
       </DialogContent>
     </Dialog>
   );
