@@ -477,9 +477,11 @@ function Menu() {
               </div>
             </div>
 
-            <div className="mt-4 flex items-center gap-3 text-[10px] uppercase tracking-[0.3em] opacity-60">
+            <div className="mt-4 flex items-center gap-3 text-[10px] uppercase tracking-[0.3em] opacity-70">
               <span className="h-px w-8" style={{ backgroundColor: "var(--gold)" }} />
+              <Sunflower size={18} />
               Aberto Seg — Sáb · 7h às 19h
+              <Sunflower size={18} />
               <span className="h-px w-8" style={{ backgroundColor: "var(--gold)" }} />
             </div>
           </div>
