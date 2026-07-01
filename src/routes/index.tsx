@@ -474,36 +474,45 @@ function Menu() {
             </div>
 
             <div className="grid w-full gap-4 sm:grid-cols-3">
-              <div>
+              <a
+                href="https://www.google.com/maps/search/?api=1&query=R.+Brg.+Eduardo+Gomes%2C+202b+-+Ema%C3%BAs%2C+Parnamirim+-+RN%2C+59149-390"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group block rounded-lg p-2 transition-colors hover:bg-white/5"
+              >
                 <div className="text-[10px] font-semibold uppercase tracking-[0.25em]" style={{ color: "var(--gold)" }}>
                   Endereço
                 </div>
-                <p className="mt-1 text-sm opacity-90">
-                  Rua Principal, 123<br />Centro
+                <p className="mt-1 text-sm opacity-90 group-hover:opacity-100">
+                  R. Brg. Eduardo Gomes, 202b<br />Emaús, Parnamirim - RN
                 </p>
-              </div>
-              <div>
+              </a>
+              <a
+                href="https://wa.me/558421312259"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group block rounded-lg p-2 transition-colors hover:bg-white/5"
+              >
                 <div className="text-[10px] font-semibold uppercase tracking-[0.25em]" style={{ color: "var(--gold)" }}>
                   WhatsApp
                 </div>
-                <a
-                  href="https://wa.me/5500000000000"
-                  className="mt-1 block text-sm underline-offset-4 hover:underline"
-                >
-                  (00) 00000-0000
-                </a>
-              </div>
-              <div>
+                <p className="mt-1 text-sm opacity-90 group-hover:opacity-100">
+                  +55 (84) 2131-2259
+                </p>
+              </a>
+              <a
+                href="https://www.instagram.com/cafetteriabistro/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group block rounded-lg p-2 transition-colors hover:bg-white/5"
+              >
                 <div className="text-[10px] font-semibold uppercase tracking-[0.25em]" style={{ color: "var(--gold)" }}>
                   Instagram
                 </div>
-                <a
-                  href="https://instagram.com/cafetteriabistro"
-                  className="mt-1 block text-sm underline-offset-4 hover:underline"
-                >
-                  @cafetteriabistro
-                </a>
-              </div>
+                <p className="mt-1 text-sm opacity-90 group-hover:opacity-100">
+                  @CafetteriaBistro
+                </p>
+              </a>
             </div>
 
             <div className="mt-4 flex items-center gap-3 text-[10px] uppercase tracking-[0.3em] opacity-70">
