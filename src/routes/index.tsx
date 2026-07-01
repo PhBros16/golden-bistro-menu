@@ -1063,7 +1063,7 @@ function Menu() {
               </div>
               <h1 className="font-display text-2xl font-bold leading-tight sm:text-3xl">Bistrô</h1>
               <p className="mt-0.5 text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
-                Aberto · Seg a Sáb · 7h — 19h
+                Aberto · Todos os dias · 14h — 20h
               </p>
             </div>
           </div>
