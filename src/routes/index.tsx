@@ -168,6 +168,41 @@ const SECTIONS: Section[] = [
   },
 ];
 
+function Sunflower({ className = "", size = 28 }: { className?: string; size?: number }) {
+  const petals = Array.from({ length: 12 });
+  return (
+    <svg
+      viewBox="0 0 64 64"
+      width={size}
+      height={size}
+      className={className}
+      aria-hidden
+    >
+      {petals.map((_, i) => (
+        <ellipse
+          key={i}
+          cx="32"
+          cy="14"
+          rx="4.5"
+          ry="10"
+          fill="var(--sunflower)"
+          stroke="var(--gold)"
+          strokeWidth="0.8"
+          transform={`rotate(${(360 / petals.length) * i} 32 32)`}
+        />
+      ))}
+      <circle cx="32" cy="32" r="8" fill="var(--ink)" />
+      <circle cx="32" cy="32" r="8" fill="url(#seedGrain)" opacity="0.6" />
+      <defs>
+        <radialGradient id="seedGrain">
+          <stop offset="0%" stopColor="var(--gold)" stopOpacity="0.4" />
+          <stop offset="100%" stopColor="var(--ink)" stopOpacity="0" />
+        </radialGradient>
+      </defs>
+    </svg>
+  );
+}
+
 function Logo({ className = "" }: { className?: string }) {
   return (
     <div
@@ -175,7 +210,7 @@ function Logo({ className = "" }: { className?: string }) {
       style={{ boxShadow: "inset 0 0 0 1px var(--gold), inset 0 0 0 4px var(--ink), inset 0 0 0 5px color-mix(in oklab, var(--gold) 60%, transparent)" }}
     >
       <div className="text-center leading-none">
-        <div className="font-script text-[0.95em] text-gold-soft" style={{ color: "var(--gold-soft)" }}>
+        <div className="font-script text-[1.05em]" style={{ color: "var(--sunflower)" }}>
           Cafetteria
         </div>
         <div className="font-display text-[0.55em] uppercase tracking-[0.3em]" style={{ color: "var(--gold)" }}>
