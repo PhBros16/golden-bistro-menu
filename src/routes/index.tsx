@@ -811,128 +811,12 @@ function CartDialog({
           </>
         )}
 
-        {step === "payment" && (
+        {step === "takeout-confirm" && (
           <>
             <DialogHeader>
-              <DialogTitle className="font-display text-2xl">Forma de pagamento</DialogTitle>
-              <DialogDescription>Retirada / Delivery — como prefere pagar?</DialogDescription>
-            </DialogHeader>
-
-            <div className="grid gap-3 pt-2 sm:grid-cols-2">
-              <button
-                onClick={() => {
-                  setMethod("Pix");
-                  setStep("pix");
-                }}
-                className="flex flex-col items-center gap-2 rounded-xl p-6 transition-transform duration-200 hover:scale-[1.02] active:scale-95"
-                style={{
-                  border: "2px dashed var(--gold)",
-                  backgroundColor: "color-mix(in oklab, var(--sunflower) 8%, var(--card))",
-                }}
-              >
-                <QrCode className="h-10 w-10" style={{ color: "var(--gold)" }} />
-                <span className="font-display text-lg font-bold">Pix</span>
-                <span className="text-center text-xs text-muted-foreground">
-                  QR code e chave copia-e-cola
-                </span>
-              </button>
-              <button
-                onClick={() => {
-                  setMethod("Cartão");
-                  setStep("card");
-                }}
-                className="flex flex-col items-center gap-2 rounded-xl p-6 transition-transform duration-200 hover:scale-[1.02] active:scale-95"
-                style={{
-                  border: "2px dashed var(--gold)",
-                  backgroundColor: "color-mix(in oklab, var(--sunflower) 8%, var(--card))",
-                }}
-              >
-                <CreditCard className="h-10 w-10" style={{ color: "var(--gold)" }} />
-                <span className="font-display text-lg font-bold">Cartão</span>
-                <span className="text-center text-xs text-muted-foreground">
-                  Pagamento na retirada
-                </span>
-              </button>
-            </div>
-
-            <button
-              onClick={() => setStep("order-type")}
-              className="mt-3 w-full text-xs text-muted-foreground underline underline-offset-4"
-            >
-              ← Voltar
-            </button>
-          </>
-        )}
-
-        {step === "pix" && (
-          <>
-            <DialogHeader>
-              <DialogTitle className="font-display text-2xl">Pagamento via Pix</DialogTitle>
+              <DialogTitle className="font-display text-2xl">Confirme seu pedido</DialogTitle>
               <DialogDescription>
-                Total <strong>R$ {formatBRL(cart.total)}</strong> — Retirada / Delivery
-              </DialogDescription>
-            </DialogHeader>
-
-            <div className="flex flex-col items-center gap-4 pt-2">
-              <div
-                className="rounded-xl bg-white p-3"
-                style={{ border: "2px dashed var(--gold)" }}
-              >
-                <img
-                  src={`https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(
-                    PIX_KEY,
-                  )}`}
-                  alt="QR code Pix"
-                  width={220}
-                  height={220}
-                />
-              </div>
-
-              <div className="w-full">
-                <div className="mb-1 text-center text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  Chave Pix (copia e cola)
-                </div>
-                <button
-                  onClick={copyPix}
-                  className="flex w-full items-center justify-between gap-2 rounded-lg p-3 text-left transition-colors hover:opacity-80"
-                  style={{
-                    backgroundColor: "var(--muted)",
-                    border: "1px dashed color-mix(in oklab, var(--gold) 60%, transparent)",
-                  }}
-                >
-                  <span className="truncate font-mono text-sm">{PIX_KEY}</span>
-                  {copied ? (
-                    <Check className="h-4 w-4 shrink-0" style={{ color: "var(--gold)" }} />
-                  ) : (
-                    <Copy className="h-4 w-4 shrink-0" />
-                  )}
-                </button>
-              </div>
-
-              <button
-                onClick={sendWhatsApp}
-                className="mt-2 flex w-full items-center justify-center gap-2 rounded-full py-3 text-sm font-bold uppercase tracking-widest transition-transform hover:scale-[1.02] active:scale-95"
-                style={{ backgroundColor: "#25D366", color: "white" }}
-              >
-                <MessageCircle className="h-4 w-4" />
-                Enviar pedido via WhatsApp
-              </button>
-              <button
-                onClick={() => setStep("payment")}
-                className="text-xs text-muted-foreground underline underline-offset-4"
-              >
-                ← Voltar
-              </button>
-            </div>
-          </>
-        )}
-
-        {step === "card" && (
-          <>
-            <DialogHeader>
-              <DialogTitle className="font-display text-2xl">Cartão na retirada</DialogTitle>
-              <DialogDescription>
-                Total <strong>R$ {formatBRL(cart.total)}</strong> — Retirada / Delivery
+                Retirada / Delivery · Total <strong>R$ {formatBRL(cart.total)}</strong>
               </DialogDescription>
             </DialogHeader>
 
@@ -940,15 +824,16 @@ function CartDialog({
               className="rounded-xl p-5 text-center"
               style={{
                 border: "2px dashed var(--gold)",
-                backgroundColor: "color-mix(in oklab, var(--sunflower) 10%, var(--card))",
+                backgroundColor: "color-mix(in oklab, var(--sunflower) 12%, var(--card))",
               }}
             >
-              <CreditCard className="mx-auto mb-2 h-10 w-10" style={{ color: "var(--gold)" }} />
+              <Bike className="mx-auto mb-2 h-10 w-10" style={{ color: "var(--gold)" }} />
               <p className="font-script text-2xl leading-snug" style={{ color: "var(--ink)" }}>
-                Pagamento na retirada 
+                Revise seu pedido
               </p>
-              <p className="mt-2 text-xs text-muted-foreground">
-                Prepare seu cartão · Débito, crédito ou aproximação
+              <p className="mt-2 text-sm text-muted-foreground">
+                Ao enviar, um atendente confirma o pedido pelo WhatsApp e combina o pagamento
+                (Pix ou cartão na retirada).
               </p>
             </div>
 
@@ -958,16 +843,17 @@ function CartDialog({
               style={{ backgroundColor: "#25D366", color: "white" }}
             >
               <MessageCircle className="h-4 w-4" />
-              Enviar pedido via WhatsApp
+              Enviar pedido para a cozinha
             </button>
             <button
-              onClick={() => setStep("payment")}
+              onClick={() => setStep("order-type")}
               className="mt-2 w-full text-xs text-muted-foreground underline underline-offset-4"
             >
               ← Voltar
             </button>
           </>
         )}
+
       </DialogContent>
     </Dialog>
   );
