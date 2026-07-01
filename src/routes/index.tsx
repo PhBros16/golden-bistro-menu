@@ -299,7 +299,7 @@ function Logo({ className = "" }: { className?: string }) {
 }
 
 // ----- Cart -----
-type CartLine = { name: string; unitPrice: number; qty: number; note?: string };
+type CartLine = { name: string; unitPrice: number; qty: number; note?: string; obs?: string };
 
 const CART_STORAGE_KEY = "cafetteria-cart-v1";
 
@@ -348,14 +348,17 @@ function useCart() {
       }
       return { ...p, [k]: { ...l, qty: l.qty - 1 } };
     });
+  const setObs = (k: string, obs: string) =>
+    setLines((p) => (p[k] ? { ...p, [k]: { ...p[k], obs } } : p));
   const clear = () => setLines({});
 
   const items = Object.entries(lines).map(([k, l]) => ({ k, ...l }));
   const count = items.reduce((s, l) => s + l.qty, 0);
   const total = items.reduce((s, l) => s + l.qty * l.unitPrice, 0);
 
-  return { items, count, total, add, inc, dec, clear };
+  return { items, count, total, add, inc, dec, setObs, clear };
 }
+
 
 // ----- Animated count-up for total -----
 function useCountUp(value: number, duration = 260) {
