@@ -611,45 +611,59 @@ function CartDialog({
               <>
                 <ul className="divide-y" style={{ borderColor: "var(--border)" }}>
                   {cart.items.map((l) => (
-                    <li key={l.k} className="flex items-center gap-3 py-3">
-                      <div className="min-w-0 flex-1">
-                        <div className="truncate text-sm font-medium">{l.name}</div>
-                        {l.note && (
-                          <div className="text-xs italic text-muted-foreground">{l.note}</div>
-                        )}
-                        <div className="mt-0.5 text-xs text-muted-foreground">
-                          R$ {formatBRL(l.unitPrice)} · Subtotal R${" "}
-                          <span className="font-semibold" style={{ color: "var(--gold)" }}>
-                            {formatBRL(l.qty * l.unitPrice)}
+                    <li key={l.k} className="flex flex-col gap-2 py-3">
+                      <div className="flex items-center gap-3">
+                        <div className="min-w-0 flex-1">
+                          <div className="truncate text-sm font-medium">{l.name}</div>
+                          {l.note && (
+                            <div className="text-xs italic text-muted-foreground">{l.note}</div>
+                          )}
+                          <div className="mt-0.5 text-xs text-muted-foreground">
+                            R$ {formatBRL(l.unitPrice)} · Subtotal R${" "}
+                            <span className="font-semibold" style={{ color: "var(--gold)" }}>
+                              {formatBRL(l.qty * l.unitPrice)}
+                            </span>
+                          </div>
+                        </div>
+                        <div
+                          className="flex items-center gap-2 rounded-full px-1 py-1"
+                          style={{ backgroundColor: "var(--muted)" }}
+                        >
+                          <button
+                            onClick={() => cart.dec(l.k)}
+                            aria-label="Diminuir"
+                            className="flex h-7 w-7 items-center justify-center rounded-full bg-transparent transition-transform duration-150 hover:bg-black/10 active:scale-90"
+                          >
+                            <Minus className="h-3.5 w-3.5" />
+                          </button>
+                          <span
+                            key={l.qty}
+                            className="tick-in w-5 text-center text-sm font-bold tabular-nums"
+                          >
+                            {l.qty}
                           </span>
+                          <button
+                            onClick={() => cart.inc(l.k)}
+                            aria-label="Aumentar"
+                            className="flex h-7 w-7 items-center justify-center rounded-full transition-transform duration-150 active:scale-90"
+                            style={{ backgroundColor: "var(--ink)", color: "var(--sunflower)" }}
+                          >
+                            <Plus className="h-3.5 w-3.5" />
+                          </button>
                         </div>
                       </div>
-                      <div
-                        className="flex items-center gap-2 rounded-full px-1 py-1"
-                        style={{ backgroundColor: "var(--muted)" }}
-                      >
-                        <button
-                          onClick={() => cart.dec(l.k)}
-                          aria-label="Diminuir"
-                          className="flex h-7 w-7 items-center justify-center rounded-full bg-transparent transition-transform duration-150 hover:bg-black/10 active:scale-90"
-                        >
-                          <Minus className="h-3.5 w-3.5" />
-                        </button>
-                        <span
-                          key={l.qty}
-                          className="tick-in w-5 text-center text-sm font-bold tabular-nums"
-                        >
-                          {l.qty}
-                        </span>
-                        <button
-                          onClick={() => cart.inc(l.k)}
-                          aria-label="Aumentar"
-                          className="flex h-7 w-7 items-center justify-center rounded-full transition-transform duration-150 active:scale-90"
-                          style={{ backgroundColor: "var(--ink)", color: "var(--sunflower)" }}
-                        >
-                          <Plus className="h-3.5 w-3.5" />
-                        </button>
-                      </div>
+                      <Input
+                        type="text"
+                        value={l.obs ?? ""}
+                        onChange={(e) => cart.setObs(l.k, e.target.value)}
+                        placeholder="Observação (ex: sem cebola, ponto da carne)"
+                        maxLength={120}
+                        className="h-8 text-xs"
+                        style={{
+                          border: "1px dashed color-mix(in oklab, var(--gold) 55%, transparent)",
+                          backgroundColor: "color-mix(in oklab, var(--sunflower) 6%, var(--card))",
+                        }}
+                      />
                     </li>
                   ))}
                 </ul>
