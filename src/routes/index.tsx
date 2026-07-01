@@ -311,14 +311,16 @@ function Menu() {
       {/* Hero */}
       <section className="mx-auto max-w-3xl px-4 pt-8 pb-4 sm:px-6 sm:pt-12">
         <div className="text-center">
-          <div className="mx-auto mb-4 flex items-center justify-center gap-3 text-gold" style={{ color: "var(--gold)" }}>
+          <div className="mx-auto mb-4 flex items-center justify-center gap-3" style={{ color: "var(--gold)" }}>
             <span className="h-px w-10 bg-current opacity-60" />
+            <Sunflower size={26} />
             <span className="text-[10px] font-semibold uppercase tracking-[0.35em]">Cardápio</span>
+            <Sunflower size={26} />
             <span className="h-px w-10 bg-current opacity-60" />
           </div>
           <h2 className="font-display text-4xl font-bold leading-[1.05] sm:text-6xl">
             Um cantinho
-            <span className="block font-script text-5xl font-normal italic sm:text-7xl" style={{ color: "var(--gold)" }}>
+            <span className="block font-script text-6xl font-normal sm:text-8xl" style={{ color: "var(--gold)" }}>
               aconchegante
             </span>
             para você
