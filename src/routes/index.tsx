@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
+import logoAsset from "@/assets/cafetteria-logo.png.asset.json";
 
 export const Route = createFileRoute("/")({
   component: Menu,
