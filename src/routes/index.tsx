@@ -217,8 +217,8 @@ function Logo({ className = "" }: { className?: string }) {
     <img
       src={logoAsset.url}
       alt="Cafetteria Bistrô"
-      className={`aspect-square rounded-full object-cover ${className}`}
-      style={{ boxShadow: "0 0 0 1px var(--gold), 0 6px 16px color-mix(in oklab, var(--ink) 25%, transparent)" }}
+      className={`aspect-square object-contain ${className}`}
+      style={{ filter: "drop-shadow(0 6px 12px color-mix(in oklab, var(--ink) 30%, transparent))" }}
     />
   );
 }
