@@ -1,12 +1,24 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
+import { Plus, Minus, ShoppingBag, Copy, Check, QrCode, CreditCard, MessageCircle } from "lucide-react";
 import logoAsset from "@/assets/cafetteria-logo.png.asset.json";
+import imgTapioca from "@/assets/dish-tapioca.jpg";
+import imgCuscuz from "@/assets/dish-cuscuz.jpg";
+import imgArrozLeite from "@/assets/dish-arroz-leite.jpg";
+import imgBrownie from "@/assets/dish-brownie.jpg";
+import imgCappuccino from "@/assets/dish-cappuccino.jpg";
+import imgPao from "@/assets/dish-pao.jpg";
+import imgLasanha from "@/assets/dish-lasanha.jpg";
+import imgBolo from "@/assets/dish-bolo.jpg";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/")({
   component: Menu,
 });
 
-type Item = { name: string; price: string; note?: string };
+type Item = { name: string; price: string; note?: string; image?: string };
 type Section = { id: string; title: string; items: Item[]; footnote?: string };
 
 const SECTIONS: Section[] = [
@@ -15,8 +27,8 @@ const SECTIONS: Section[] = [
     title: "Prato do Dia",
     footnote: "Consultar prato do dia disponível",
     items: [
-      { name: "Arroz de leite com carne de sol", price: "20,00" },
-      { name: "Lasanha de carne", price: "20,00" },
+      { name: "Arroz de leite com carne de sol", price: "20,00", image: imgArrozLeite },
+      { name: "Lasanha de carne", price: "20,00", image: imgLasanha },
       { name: "Lasanha de frango", price: "20,00" },
       { name: "1 Panqueca", price: "10,00" },
       { name: "1 Panqueca com arroz", price: "14,00" },
@@ -37,7 +49,7 @@ const SECTIONS: Section[] = [
       { name: "Com mista", price: "12,00" },
       { name: "Com creme de frango", price: "14,00" },
       { name: "Com calabresa", price: "14,00" },
-      { name: "Com carne de sol", price: "15,00" },
+      { name: "Com carne de sol", price: "15,00", image: imgTapioca },
       { name: "Com carne moída", price: "13,00" },
       { name: "Crepioca de frango", price: "15,00" },
       { name: "Crepioca de queijo e presunto", price: "13,00" },
@@ -48,7 +60,7 @@ const SECTIONS: Section[] = [
     id: "paes",
     title: "Pães",
     items: [
-      { name: "Na chapa", price: "2,50" },
+      { name: "Na chapa", price: "2,50", image: imgPao },
       { name: "Com ovo", price: "5,00" },
       { name: "Com requeijão", price: "5,00" },
       { name: "Com cheddar", price: "5,00" },
@@ -75,7 +87,7 @@ const SECTIONS: Section[] = [
     items: [
       { name: "Com manteiga", price: "8,00" },
       { name: "Com ovo", price: "10,00" },
-      { name: "Com carne de sol", price: "16,00" },
+      { name: "Com carne de sol", price: "16,00", image: imgCuscuz },
       { name: "Com frango", price: "13,00" },
       { name: "Com queijo coalho ou manteiga", price: "12,00" },
       { name: "Temperado", price: "14,00" },
@@ -87,11 +99,11 @@ const SECTIONS: Section[] = [
     id: "bolo",
     title: "Bolo",
     items: [
-      { name: "Fatia do bolo", price: "8,00" },
+      { name: "Fatia do bolo", price: "8,00", image: imgBolo },
       { name: "Fatia com cobertura", price: "12,00" },
       { name: "Torta de abacaxi", price: "10,00" },
       { name: "Brownie", price: "10,00" },
-      { name: "Brownie com sorvete", price: "14,00" },
+      { name: "Brownie com sorvete", price: "14,00", image: imgBrownie },
     ],
   },
   {
@@ -122,7 +134,7 @@ const SECTIONS: Section[] = [
       { name: "Café com licor", price: "10,00" },
       { name: "Café com whisky", price: "10,00" },
       { name: "Café com avelã", price: "15,00" },
-      { name: "Cappuccino", price: "15,00" },
+      { name: "Cappuccino", price: "15,00", image: imgCappuccino },
       { name: "Cappuccino gelado", price: "18,00" },
       { name: "Cappuccino com avelã", price: "18,00" },
       { name: "Café descafeinado", price: "5,00", note: "pequeno" },
@@ -169,6 +181,18 @@ const SECTIONS: Section[] = [
   },
 ];
 
+const PIX_KEY = "84213122259";
+const WHATSAPP_NUMBER = "558421312259";
+
+/** Parse "20,00" or "+2,00" → 20 or 2 */
+function priceToNumber(price: string): number {
+  return parseFloat(price.replace(/[+\s]/g, "").replace(",", "."));
+}
+function formatBRL(n: number): string {
+  return n.toFixed(2).replace(".", ",");
+}
+
+// ----- Sunflower & Logo -----
 function Sunflower({
   className = "",
   size = 28,
@@ -201,13 +225,6 @@ function Sunflower({
         />
       ))}
       <circle cx="32" cy="32" r="8" fill="var(--ink)" />
-      <circle cx="32" cy="32" r="8" fill="url(#seedGrain)" opacity="0.6" />
-      <defs>
-        <radialGradient id="seedGrain">
-          <stop offset="0%" stopColor="var(--gold)" stopOpacity="0.4" />
-          <stop offset="100%" stopColor="var(--ink)" stopOpacity="0" />
-        </radialGradient>
-      </defs>
     </svg>
   );
 }
@@ -223,7 +240,46 @@ function Logo({ className = "" }: { className?: string }) {
   );
 }
 
-/** Scroll reveal: adds `is-visible` when the element enters the viewport. */
+// ----- Cart Types & Hook -----
+type CartLine = { name: string; unitPrice: number; qty: number; note?: string };
+
+function useCart() {
+  const [lines, setLines] = useState<Record<string, CartLine>>({});
+  const key = (i: Item) => `${i.name}${i.note ? "|" + i.note : ""}`;
+
+  const add = (item: Item) => {
+    const k = key(item);
+    setLines((prev) => {
+      const existing = prev[k];
+      return {
+        ...prev,
+        [k]: existing
+          ? { ...existing, qty: existing.qty + 1 }
+          : { name: item.name, unitPrice: priceToNumber(item.price), qty: 1, note: item.note },
+      };
+    });
+  };
+  const inc = (k: string) => setLines((p) => ({ ...p, [k]: { ...p[k], qty: p[k].qty + 1 } }));
+  const dec = (k: string) =>
+    setLines((p) => {
+      const l = p[k];
+      if (!l) return p;
+      if (l.qty <= 1) {
+        const { [k]: _, ...rest } = p;
+        return rest;
+      }
+      return { ...p, [k]: { ...l, qty: l.qty - 1 } };
+    });
+  const clear = () => setLines({});
+
+  const items = Object.entries(lines).map(([k, l]) => ({ k, ...l }));
+  const count = items.reduce((s, l) => s + l.qty, 0);
+  const total = items.reduce((s, l) => s + l.qty * l.unitPrice, 0);
+
+  return { items, count, total, add, inc, dec, clear };
+}
+
+// ----- Scroll reveal -----
 function useReveal<T extends HTMLElement>() {
   const ref = useRef<T | null>(null);
   useEffect(() => {
@@ -246,15 +302,20 @@ function useReveal<T extends HTMLElement>() {
   return ref;
 }
 
-function SectionBlock({ section, index }: { section: Section; index: number }) {
+// ----- Section renderer -----
+function SectionBlock({
+  section,
+  index,
+  onAdd,
+}: {
+  section: Section;
+  index: number;
+  onAdd: (i: Item) => void;
+}) {
   const ref = useReveal<HTMLElement>();
   const highlight = section.id === "prato-do-dia";
   return (
-    <section
-      ref={ref}
-      id={section.id}
-      className="reveal scroll-mt-40 pt-10 sm:pt-14"
-    >
+    <section ref={ref} id={section.id} className="reveal scroll-mt-40 pt-10 sm:pt-14">
       <div
         className={highlight ? "relative rounded-2xl p-5 sm:p-8" : ""}
         style={
@@ -265,7 +326,8 @@ function SectionBlock({ section, index }: { section: Section; index: number }) {
                 outlineOffset: "4px",
                 background:
                   "linear-gradient(180deg, color-mix(in oklab, var(--sunflower) 12%, var(--card)) 0%, var(--card) 100%)",
-                boxShadow: "0 4px 0 color-mix(in oklab, var(--ink) 15%, transparent), var(--shadow-warm)",
+                boxShadow:
+                  "0 4px 0 color-mix(in oklab, var(--ink) 15%, transparent), var(--shadow-warm)",
               }
             : undefined
         }
@@ -273,7 +335,11 @@ function SectionBlock({ section, index }: { section: Section; index: number }) {
         {highlight && (
           <div
             className="chalk-corners pulse-soft absolute -top-4 left-5 flex items-center gap-1.5 rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.25em]"
-            style={{ backgroundColor: "var(--sunflower)", color: "var(--ink)", border: "2px solid var(--ink)" }}
+            style={{
+              backgroundColor: "var(--sunflower)",
+              color: "var(--ink)",
+              border: "2px solid var(--ink)",
+            }}
           >
             Hoje
           </div>
@@ -283,44 +349,83 @@ function SectionBlock({ section, index }: { section: Section; index: number }) {
           <h3 className="font-display text-3xl font-bold leading-none sm:text-4xl">
             {section.title}
           </h3>
-          <span className="h-px flex-1" style={{ backgroundColor: "var(--gold)", opacity: 0.4 }} />
+          <span
+            className="h-px flex-1"
+            style={{ backgroundColor: "var(--gold)", opacity: 0.4 }}
+          />
           <span className="font-script text-lg" style={{ color: "var(--gold)" }}>
             {String(index + 1).padStart(2, "0")}
           </span>
         </div>
 
-        <ul className={highlight ? "mt-6 space-y-2" : "space-y-1"}>
-          {section.items.map((item, i) => (
-            <li
-              key={i}
-              className={`${highlight ? "" : "item-row"} group flex items-baseline gap-2`}
-            >
-              <div className="min-w-0 flex-1">
-                <span className="text-[15px] font-medium leading-snug sm:text-base">
-                  {item.name}
-                </span>
-                {item.note && (
-                  <span className="ml-2 text-xs italic text-muted-foreground">
-                    {item.note}
-                  </span>
-                )}
-              </div>
-              <span
-                aria-hidden
-                className="dotted-leader h-[3px] min-w-[16px] flex-1 self-end pb-1 opacity-30"
-              />
-              <span
-                className="shrink-0 whitespace-nowrap font-display text-base font-bold tabular-nums sm:text-lg"
-                style={{ color: highlight ? "var(--gold)" : "var(--foreground)" }}
+        <ul className={highlight ? "mt-6 space-y-3" : "space-y-2"}>
+          {section.items.map((item, i) => {
+            const isAddon = item.price.startsWith("+");
+            return (
+              <li
+                key={i}
+                className={`${highlight ? "" : "item-row"} group flex items-center gap-3`}
               >
-                R$ {item.price}
-              </span>
-            </li>
-          ))}
+                {item.image && (
+                  <img
+                    src={item.image}
+                    alt={item.name}
+                    loading="lazy"
+                    width={64}
+                    height={64}
+                    className="h-14 w-14 shrink-0 rounded-lg object-cover shadow-sm sm:h-16 sm:w-16"
+                    style={{ border: "1px solid color-mix(in oklab, var(--gold) 40%, transparent)" }}
+                  />
+                )}
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-[15px] font-medium leading-snug sm:text-base">
+                      {item.name}
+                    </span>
+                    {item.note && (
+                      <span className="text-xs italic text-muted-foreground">
+                        {item.note}
+                      </span>
+                    )}
+                  </div>
+                  {!item.image && (
+                    <span
+                      aria-hidden
+                      className="dotted-leader mt-1 block h-[3px] w-full opacity-30"
+                    />
+                  )}
+                </div>
+                <span
+                  className="shrink-0 whitespace-nowrap font-display text-base font-bold tabular-nums sm:text-lg"
+                  style={{ color: highlight ? "var(--gold)" : "var(--foreground)" }}
+                >
+                  R$ {item.price}
+                </span>
+                {!isAddon && (
+                  <button
+                    type="button"
+                    aria-label={`Adicionar ${item.name}`}
+                    onClick={() => onAdd(item)}
+                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition-transform duration-200 ease-out hover:scale-105 active:scale-95"
+                    style={{
+                      backgroundColor: "var(--ink)",
+                      color: "var(--sunflower)",
+                      boxShadow: "0 4px 12px -4px color-mix(in oklab, var(--ink) 60%, transparent)",
+                    }}
+                  >
+                    <Plus className="h-4 w-4" />
+                  </button>
+                )}
+              </li>
+            );
+          })}
         </ul>
 
         {section.footnote && (
-          <p className="mt-5 text-center font-script text-lg" style={{ color: "var(--gold)" }}>
+          <p
+            className="mt-5 text-center font-script text-lg"
+            style={{ color: "var(--gold)" }}
+          >
             {section.footnote}
           </p>
         )}
@@ -329,9 +434,340 @@ function SectionBlock({ section, index }: { section: Section; index: number }) {
   );
 }
 
+// ----- Cart Dialog with payment flow -----
+type Step = "cart" | "payment" | "pix" | "card";
+
+function CartDialog({
+  open,
+  onOpenChange,
+  cart,
+}: {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  cart: ReturnType<typeof useCart>;
+}) {
+  const [step, setStep] = useState<Step>("cart");
+  const [table, setTable] = useState("");
+  const [copied, setCopied] = useState(false);
+  const [method, setMethod] = useState<"Pix" | "Cartão" | null>(null);
+
+  useEffect(() => {
+    if (open) setStep("cart");
+  }, [open]);
+
+  const buildMessage = () => {
+    const lines = cart.items
+      .map((l) => `• ${l.name}${l.note ? ` (${l.note})` : ""} x${l.qty} — R$ ${formatBRL(l.qty * l.unitPrice)}`)
+      .join("\n");
+    return (
+      `*Pedido - Cafetteria Bistrô*\n` +
+      `Mesa: ${table || "—"}\n\n` +
+      `${lines}\n\n` +
+      `*Total:* R$ ${formatBRL(cart.total)}\n` +
+      `*Pagamento:* ${method ?? "—"}`
+    );
+  };
+
+  const sendWhatsApp = () => {
+    const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(buildMessage())}`;
+    window.open(url, "_blank", "noopener,noreferrer");
+    onOpenChange(false);
+    setTimeout(() => cart.clear(), 400);
+  };
+
+  const copyPix = async () => {
+    try {
+      await navigator.clipboard.writeText(PIX_KEY);
+      setCopied(true);
+      toast.success("Chave Pix copiada!");
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      toast.error("Não foi possível copiar");
+    }
+  };
+
+  const canProceed = cart.count > 0 && table.trim().length > 0;
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent
+        className="max-h-[90vh] overflow-y-auto sm:max-w-md"
+        style={{ backgroundColor: "var(--card)" }}
+      >
+        {step === "cart" && (
+          <>
+            <DialogHeader>
+              <DialogTitle className="font-display text-2xl">
+                Seu pedido
+                <span className="font-script ml-2 text-xl" style={{ color: "var(--gold)" }}>
+                  ({cart.count} {cart.count === 1 ? "item" : "itens"})
+                </span>
+              </DialogTitle>
+              <DialogDescription>Revise os itens e informe sua mesa.</DialogDescription>
+            </DialogHeader>
+
+            {cart.count === 0 ? (
+              <p className="py-8 text-center text-sm text-muted-foreground">
+                Seu carrinho está vazio.
+              </p>
+            ) : (
+              <>
+                <ul className="divide-y" style={{ borderColor: "var(--border)" }}>
+                  {cart.items.map((l) => (
+                    <li key={l.k} className="flex items-center gap-3 py-3">
+                      <div className="min-w-0 flex-1">
+                        <div className="truncate text-sm font-medium">{l.name}</div>
+                        {l.note && (
+                          <div className="text-xs italic text-muted-foreground">{l.note}</div>
+                        )}
+                        <div className="mt-0.5 text-xs text-muted-foreground">
+                          R$ {formatBRL(l.unitPrice)} · Subtotal R${" "}
+                          <span className="font-semibold" style={{ color: "var(--gold)" }}>
+                            {formatBRL(l.qty * l.unitPrice)}
+                          </span>
+                        </div>
+                      </div>
+                      <div
+                        className="flex items-center gap-2 rounded-full px-1 py-1"
+                        style={{ backgroundColor: "var(--muted)" }}
+                      >
+                        <button
+                          onClick={() => cart.dec(l.k)}
+                          aria-label="Diminuir"
+                          className="flex h-7 w-7 items-center justify-center rounded-full bg-transparent hover:bg-black/10"
+                        >
+                          <Minus className="h-3.5 w-3.5" />
+                        </button>
+                        <span className="w-5 text-center text-sm font-bold tabular-nums">
+                          {l.qty}
+                        </span>
+                        <button
+                          onClick={() => cart.inc(l.k)}
+                          aria-label="Aumentar"
+                          className="flex h-7 w-7 items-center justify-center rounded-full"
+                          style={{ backgroundColor: "var(--ink)", color: "var(--sunflower)" }}
+                        >
+                          <Plus className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+
+                <div
+                  className="mt-2 flex items-center justify-between rounded-lg p-3"
+                  style={{ backgroundColor: "color-mix(in oklab, var(--sunflower) 15%, transparent)" }}
+                >
+                  <span className="font-display text-lg font-bold">Total</span>
+                  <span className="font-display text-2xl font-bold" style={{ color: "var(--ink)" }}>
+                    R$ {formatBRL(cart.total)}
+                  </span>
+                </div>
+
+                <label className="mt-3 block">
+                  <span className="mb-1 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    Número da mesa
+                  </span>
+                  <Input
+                    type="text"
+                    inputMode="numeric"
+                    placeholder="Ex: 12"
+                    value={table}
+                    onChange={(e) => setTable(e.target.value)}
+                    className="text-base"
+                  />
+                </label>
+
+                <button
+                  onClick={() => setStep("payment")}
+                  disabled={!canProceed}
+                  className="mt-4 w-full rounded-full py-3 text-sm font-bold uppercase tracking-widest transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
+                  style={{ backgroundColor: "var(--ink)", color: "var(--sunflower)" }}
+                >
+                  Escolher pagamento
+                </button>
+                <button
+                  onClick={() => cart.clear()}
+                  className="mt-2 w-full text-xs text-muted-foreground underline underline-offset-4"
+                >
+                  Limpar carrinho
+                </button>
+              </>
+            )}
+          </>
+        )}
+
+        {step === "payment" && (
+          <>
+            <DialogHeader>
+              <DialogTitle className="font-display text-2xl">Forma de pagamento</DialogTitle>
+              <DialogDescription>Como você prefere pagar?</DialogDescription>
+            </DialogHeader>
+
+            <div className="grid gap-3 pt-2 sm:grid-cols-2">
+              <button
+                onClick={() => {
+                  setMethod("Pix");
+                  setStep("pix");
+                }}
+                className="group flex flex-col items-center gap-2 rounded-xl p-6 transition-all hover:scale-[1.02]"
+                style={{
+                  border: "2px dashed var(--gold)",
+                  backgroundColor: "color-mix(in oklab, var(--sunflower) 8%, var(--card))",
+                }}
+              >
+                <QrCode className="h-10 w-10" style={{ color: "var(--gold)" }} />
+                <span className="font-display text-lg font-bold">Pix</span>
+                <span className="text-center text-xs text-muted-foreground">
+                  QR code e chave copia-e-cola
+                </span>
+              </button>
+              <button
+                onClick={() => {
+                  setMethod("Cartão");
+                  setStep("card");
+                }}
+                className="group flex flex-col items-center gap-2 rounded-xl p-6 transition-all hover:scale-[1.02]"
+                style={{
+                  border: "2px dashed var(--gold)",
+                  backgroundColor: "color-mix(in oklab, var(--sunflower) 8%, var(--card))",
+                }}
+              >
+                <CreditCard className="h-10 w-10" style={{ color: "var(--gold)" }} />
+                <span className="font-display text-lg font-bold">Cartão</span>
+                <span className="text-center text-xs text-muted-foreground">
+                  Atendente leva a comanda
+                </span>
+              </button>
+            </div>
+
+            <button
+              onClick={() => setStep("cart")}
+              className="mt-3 w-full text-xs text-muted-foreground underline underline-offset-4"
+            >
+              ← Voltar ao carrinho
+            </button>
+          </>
+        )}
+
+        {step === "pix" && (
+          <>
+            <DialogHeader>
+              <DialogTitle className="font-display text-2xl">Pagamento via Pix</DialogTitle>
+              <DialogDescription>
+                Total <strong>R$ {formatBRL(cart.total)}</strong> — Mesa {table}
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="flex flex-col items-center gap-4 pt-2">
+              <div
+                className="rounded-xl bg-white p-3"
+                style={{ border: "2px dashed var(--gold)" }}
+              >
+                <img
+                  src={`https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(
+                    PIX_KEY,
+                  )}`}
+                  alt="QR code Pix"
+                  width={220}
+                  height={220}
+                />
+              </div>
+
+              <div className="w-full">
+                <div className="mb-1 text-center text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  Chave Pix (copia e cola)
+                </div>
+                <button
+                  onClick={copyPix}
+                  className="flex w-full items-center justify-between gap-2 rounded-lg p-3 text-left transition-colors hover:opacity-80"
+                  style={{
+                    backgroundColor: "var(--muted)",
+                    border: "1px dashed color-mix(in oklab, var(--gold) 60%, transparent)",
+                  }}
+                >
+                  <span className="truncate font-mono text-sm">{PIX_KEY}</span>
+                  {copied ? (
+                    <Check className="h-4 w-4 shrink-0" style={{ color: "var(--gold)" }} />
+                  ) : (
+                    <Copy className="h-4 w-4 shrink-0" />
+                  )}
+                </button>
+              </div>
+
+              <button
+                onClick={sendWhatsApp}
+                className="mt-2 flex w-full items-center justify-center gap-2 rounded-full py-3 text-sm font-bold uppercase tracking-widest"
+                style={{ backgroundColor: "#25D366", color: "white" }}
+              >
+                <MessageCircle className="h-4 w-4" />
+                Enviar pedido via WhatsApp
+              </button>
+              <button
+                onClick={() => setStep("payment")}
+                className="text-xs text-muted-foreground underline underline-offset-4"
+              >
+                ← Voltar
+              </button>
+            </div>
+          </>
+        )}
+
+        {step === "card" && (
+          <>
+            <DialogHeader>
+              <DialogTitle className="font-display text-2xl">Pagamento no cartão</DialogTitle>
+              <DialogDescription>
+                Total <strong>R$ {formatBRL(cart.total)}</strong> — Mesa {table}
+              </DialogDescription>
+            </DialogHeader>
+
+            <div
+              className="rounded-xl p-5 text-center"
+              style={{
+                border: "2px dashed var(--gold)",
+                backgroundColor: "color-mix(in oklab, var(--sunflower) 10%, var(--card))",
+              }}
+            >
+              <CreditCard
+                className="mx-auto mb-2 h-10 w-10"
+                style={{ color: "var(--gold)" }}
+              />
+              <p className="font-script text-2xl leading-snug" style={{ color: "var(--ink)" }}>
+                Um atendente já vai até sua mesa com a comanda 
+              </p>
+              <p className="mt-2 text-xs text-muted-foreground">
+                Prepare seu cartão · Débito, crédito ou aproximação
+              </p>
+            </div>
+
+            <button
+              onClick={sendWhatsApp}
+              className="mt-4 flex w-full items-center justify-center gap-2 rounded-full py-3 text-sm font-bold uppercase tracking-widest"
+              style={{ backgroundColor: "#25D366", color: "white" }}
+            >
+              <MessageCircle className="h-4 w-4" />
+              Enviar pedido via WhatsApp
+            </button>
+            <button
+              onClick={() => setStep("payment")}
+              className="mt-2 w-full text-xs text-muted-foreground underline underline-offset-4"
+            >
+              ← Voltar
+            </button>
+          </>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// ----- Main -----
 function Menu() {
   const [active, setActive] = useState(SECTIONS[0].id);
+  const [cartOpen, setCartOpen] = useState(false);
   const chipsRef = useRef<HTMLDivElement>(null);
+  const cart = useCart();
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -362,6 +798,11 @@ function Menu() {
     window.scrollTo({ top: y, behavior: "smooth" });
   };
 
+  const onAdd = (item: Item) => {
+    cart.add(item);
+    toast.success(`${item.name} adicionado`, { duration: 1400 });
+  };
+
   return (
     <div className="min-h-screen">
       {/* Header */}
@@ -371,7 +812,10 @@ function Menu() {
             <Logo className="h-14 w-14 shrink-0 sm:h-16 sm:w-16" />
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2">
-                <div className="font-script text-2xl leading-none sm:text-3xl" style={{ color: "var(--gold)" }}>
+                <div
+                  className="font-script text-2xl leading-none sm:text-3xl"
+                  style={{ color: "var(--gold)" }}
+                >
                   Cafetteria
                 </div>
                 <Sunflower size={22} spin className="shrink-0" />
@@ -385,7 +829,6 @@ function Menu() {
             </div>
           </div>
 
-          {/* Chips */}
           <div
             ref={chipsRef}
             className="-mx-4 mt-3 flex snap-x snap-mandatory gap-2 overflow-x-auto px-4 pb-1 sm:-mx-6 sm:px-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
@@ -419,17 +862,26 @@ function Menu() {
       {/* Hero */}
       <section className="mx-auto max-w-3xl px-4 pt-8 pb-4 sm:px-6 sm:pt-12">
         <div className="text-center">
-          <div className="mx-auto mb-4 flex items-center justify-center gap-3" style={{ color: "var(--gold)" }}>
+          <div
+            className="mx-auto mb-4 flex items-center justify-center gap-3"
+            style={{ color: "var(--gold)" }}
+          >
             <span className="h-px w-16 bg-current opacity-60" />
             <Sunflower size={28} />
             <span className="h-px w-16 bg-current opacity-60" />
           </div>
-          <div className="mb-3 text-[10px] font-semibold uppercase tracking-[0.35em]" style={{ color: "var(--gold)" }}>
+          <div
+            className="mb-3 text-[10px] font-semibold uppercase tracking-[0.35em]"
+            style={{ color: "var(--gold)" }}
+          >
             Cardápio
           </div>
           <h2 className="font-display text-4xl font-bold leading-[1.05] sm:text-6xl">
             Um cantinho
-            <span className="block font-script text-6xl font-normal sm:text-8xl" style={{ color: "var(--gold)" }}>
+            <span
+              className="block font-script text-6xl font-normal sm:text-8xl"
+              style={{ color: "var(--gold)" }}
+            >
               aconchegante
             </span>
             para você
@@ -442,12 +894,11 @@ function Menu() {
       </section>
 
       {/* Sections */}
-      <main className="mx-auto max-w-3xl px-4 pb-24 sm:px-6">
+      <main className="mx-auto max-w-3xl px-4 pb-32 sm:px-6">
         {SECTIONS.map((section, i) => (
-          <SectionBlock key={section.id} section={section} index={i} />
+          <SectionBlock key={section.id} section={section} index={i} onAdd={onAdd} />
         ))}
 
-        {/* Signature block */}
         <div className="mt-16 text-center">
           <div className="mx-auto mb-4 h-px w-20" style={{ backgroundColor: "var(--gold)" }} />
           <p className="font-script text-2xl" style={{ color: "var(--gold)" }}>
@@ -460,7 +911,10 @@ function Menu() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-border/60" style={{ backgroundColor: "var(--ink)", color: "var(--cream)" }}>
+      <footer
+        className="border-t border-border/60"
+        style={{ backgroundColor: "var(--ink)", color: "var(--cream)" }}
+      >
         <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
           <div className="flex flex-col items-center gap-6 text-center">
             <Logo className="h-20 w-20" />
@@ -480,7 +934,10 @@ function Menu() {
                 rel="noopener noreferrer"
                 className="group block rounded-lg p-2 transition-colors hover:bg-white/5"
               >
-                <div className="text-[10px] font-semibold uppercase tracking-[0.25em]" style={{ color: "var(--gold)" }}>
+                <div
+                  className="text-[10px] font-semibold uppercase tracking-[0.25em]"
+                  style={{ color: "var(--gold)" }}
+                >
                   Endereço
                 </div>
                 <p className="mt-1 text-sm opacity-90 group-hover:opacity-100">
@@ -493,7 +950,10 @@ function Menu() {
                 rel="noopener noreferrer"
                 className="group block rounded-lg p-2 transition-colors hover:bg-white/5"
               >
-                <div className="text-[10px] font-semibold uppercase tracking-[0.25em]" style={{ color: "var(--gold)" }}>
+                <div
+                  className="text-[10px] font-semibold uppercase tracking-[0.25em]"
+                  style={{ color: "var(--gold)" }}
+                >
                   WhatsApp
                 </div>
                 <p className="mt-1 text-sm opacity-90 group-hover:opacity-100">
@@ -506,7 +966,10 @@ function Menu() {
                 rel="noopener noreferrer"
                 className="group block rounded-lg p-2 transition-colors hover:bg-white/5"
               >
-                <div className="text-[10px] font-semibold uppercase tracking-[0.25em]" style={{ color: "var(--gold)" }}>
+                <div
+                  className="text-[10px] font-semibold uppercase tracking-[0.25em]"
+                  style={{ color: "var(--gold)" }}
+                >
                   Instagram
                 </div>
                 <p className="mt-1 text-sm opacity-90 group-hover:opacity-100">
@@ -524,6 +987,27 @@ function Menu() {
           </div>
         </div>
       </footer>
+
+      {/* Floating cart FAB */}
+      {cart.count > 0 && (
+        <button
+          onClick={() => setCartOpen(true)}
+          className="fixed bottom-5 left-1/2 z-50 flex -translate-x-1/2 items-center gap-3 rounded-full px-5 py-3 text-sm font-bold shadow-warm transition-transform hover:scale-105 active:scale-95"
+          style={{
+            backgroundColor: "var(--ink)",
+            color: "var(--sunflower)",
+            border: "2px solid var(--sunflower)",
+            boxShadow: "0 12px 28px -8px rgba(0,0,0,0.5)",
+          }}
+        >
+          <ShoppingBag className="h-5 w-5" />
+          <span>
+            Carrinho ({cart.count}) · R$ {formatBRL(cart.total)}
+          </span>
+        </button>
+      )}
+
+      <CartDialog open={cartOpen} onOpenChange={setCartOpen} cart={cart} />
     </div>
   );
 }
