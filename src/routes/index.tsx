@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { Plus, Minus, ShoppingBag, X, Copy, Check, QrCode, CreditCard, MessageCircle } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Plus, Minus, ShoppingBag, Copy, Check, QrCode, CreditCard, MessageCircle } from "lucide-react";
 import logoAsset from "@/assets/cafetteria-logo.png.asset.json";
 import imgTapioca from "@/assets/dish-tapioca.jpg";
 import imgCuscuz from "@/assets/dish-cuscuz.jpg";
