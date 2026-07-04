@@ -8,7 +8,7 @@ import {
   Utensils,
   Bike,
 } from "lucide-react";
-import logoAsset from "@/assets/cafetteria-logo.png.asset.json";
+import logoAsset from "@/assets/cafetteria-logo.png";
 // existing hero-ish images
 import imgTapiocaCarne from "@/assets/dish-tapioca.jpg";
 import imgCuscuzCarne from "@/assets/dish-cuscuz.jpg";
@@ -290,7 +290,7 @@ function Sunflower({
 function Logo({ className = "" }: { className?: string }) {
   return (
     <img
-      src={logoAsset.url}
+      src={logoAsset}
       alt="Cafetteria Bistrô"
       className={`aspect-square object-contain ${className}`}
       style={{ filter: "drop-shadow(0 6px 12px color-mix(in oklab, var(--ink) 30%, transparent))" }}
