@@ -532,6 +532,7 @@ function SectionBlock({
 
 // ----- Cart Dialog with order type + payment flow -----
 type OrderType = "dine-in" | "takeout";
+type TakeoutMode = "pickup" | "delivery";
 type Step = "cart" | "order-type" | "dine-confirm" | "takeout-confirm";
 
 function CartDialog({
@@ -546,6 +547,11 @@ function CartDialog({
   const [step, setStep] = useState<Step>("cart");
   const [table, setTable] = useState("");
   const [orderType, setOrderType] = useState<OrderType | null>(null);
+  const [takeoutMode, setTakeoutMode] = useState<TakeoutMode>("delivery");
+  const [customerName, setCustomerName] = useState("");
+  const [customerAddress, setCustomerAddress] = useState("");
+  const [customerPhone, setCustomerPhone] = useState("");
+  const [customerRef, setCustomerRef] = useState("");
 
   const animatedTotal = useCountUp(cart.total);
 
@@ -561,11 +567,22 @@ function CartDialog({
         return `• ${l.name}${variant} x${l.qty} — R$ ${formatBRL(l.qty * l.unitPrice)}${obs}`;
       })
       .join("\n");
-    const typeLabel = orderType === "dine-in" ? "Comer aqui" : "Retirar / Delivery";
-    const location = orderType === "dine-in" ? `Mesa: ${table || "—"}` : `Retirada / Delivery`;
+    let header = "";
+    if (orderType === "dine-in") {
+      header = `Comer aqui\nMesa: ${table || "—"}`;
+    } else {
+      const modeLabel = takeoutMode === "delivery" ? "Delivery" : "Retirar no local";
+      const info: string[] = [modeLabel];
+      if (customerName.trim()) info.push(`Cliente: ${customerName.trim()}`);
+      if (takeoutMode === "delivery" && customerAddress.trim())
+        info.push(`Endereço: ${customerAddress.trim()}`);
+      if (customerRef.trim()) info.push(`Ponto de referência: ${customerRef.trim()}`);
+      if (customerPhone.trim()) info.push(`Telefone: ${customerPhone.trim()}`);
+      header = info.join("\n");
+    }
     return (
       `*Pedido - Cafetteria Bistrô*\n` +
-      `${typeLabel}\n${location}\n\n` +
+      `${header}\n\n` +
       `${lines}\n\n` +
       `*Total:* R$ ${formatBRL(cart.total)}`
     );
@@ -579,10 +596,18 @@ function CartDialog({
       cart.clear();
       setTable("");
       setOrderType(null);
+      setCustomerName("");
+      setCustomerAddress("");
+      setCustomerPhone("");
+      setCustomerRef("");
+      setTakeoutMode("delivery");
     }, 400);
   };
 
   const canProceed = cart.count > 0;
+  const takeoutValid =
+    customerName.trim().length > 0 &&
+    (takeoutMode === "pickup" || customerAddress.trim().length > 0);
 
 
   return (
