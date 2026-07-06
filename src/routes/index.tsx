@@ -945,7 +945,7 @@ function CartDialog({
             <DialogHeader>
               <DialogTitle className="font-display text-2xl">Confirme seu pedido</DialogTitle>
               <DialogDescription>
-                Retirada / Delivery · Total <strong>R$ {formatBRL(cart.total)}</strong>
+                {takeoutMode === "delivery" ? "Delivery" : "Retirar no local"} · {customerName || "—"} · Total <strong>R$ {formatBRL(cart.total)}</strong>
               </DialogDescription>
             </DialogHeader>
 
