@@ -532,6 +532,7 @@ function SectionBlock({
 
 // ----- Cart Dialog with order type + payment flow -----
 type OrderType = "dine-in" | "takeout";
+type TakeoutMode = "pickup" | "delivery";
 type Step = "cart" | "order-type" | "dine-confirm" | "takeout-confirm";
 
 function CartDialog({
@@ -546,6 +547,11 @@ function CartDialog({
   const [step, setStep] = useState<Step>("cart");
   const [table, setTable] = useState("");
   const [orderType, setOrderType] = useState<OrderType | null>(null);
+  const [takeoutMode, setTakeoutMode] = useState<TakeoutMode>("delivery");
+  const [customerName, setCustomerName] = useState("");
+  const [customerAddress, setCustomerAddress] = useState("");
+  const [customerPhone, setCustomerPhone] = useState("");
+  const [customerRef, setCustomerRef] = useState("");
 
   const animatedTotal = useCountUp(cart.total);
 
@@ -561,11 +567,22 @@ function CartDialog({
         return `• ${l.name}${variant} x${l.qty} — R$ ${formatBRL(l.qty * l.unitPrice)}${obs}`;
       })
       .join("\n");
-    const typeLabel = orderType === "dine-in" ? "Comer aqui" : "Retirar / Delivery";
-    const location = orderType === "dine-in" ? `Mesa: ${table || "—"}` : `Retirada / Delivery`;
+    let header = "";
+    if (orderType === "dine-in") {
+      header = `Comer aqui\nMesa: ${table || "—"}`;
+    } else {
+      const modeLabel = takeoutMode === "delivery" ? "Delivery" : "Retirar no local";
+      const info: string[] = [modeLabel];
+      if (customerName.trim()) info.push(`Cliente: ${customerName.trim()}`);
+      if (takeoutMode === "delivery" && customerAddress.trim())
+        info.push(`Endereço: ${customerAddress.trim()}`);
+      if (customerRef.trim()) info.push(`Ponto de referência: ${customerRef.trim()}`);
+      if (customerPhone.trim()) info.push(`Telefone: ${customerPhone.trim()}`);
+      header = info.join("\n");
+    }
     return (
       `*Pedido - Cafetteria Bistrô*\n` +
-      `${typeLabel}\n${location}\n\n` +
+      `${header}\n\n` +
       `${lines}\n\n` +
       `*Total:* R$ ${formatBRL(cart.total)}`
     );
@@ -579,10 +596,18 @@ function CartDialog({
       cart.clear();
       setTable("");
       setOrderType(null);
+      setCustomerName("");
+      setCustomerAddress("");
+      setCustomerPhone("");
+      setCustomerRef("");
+      setTakeoutMode("delivery");
     }, 400);
   };
 
   const canProceed = cart.count > 0;
+  const takeoutValid =
+    customerName.trim().length > 0 &&
+    (takeoutMode === "pickup" || customerAddress.trim().length > 0);
 
 
   return (
@@ -764,11 +789,101 @@ function CartDialog({
               </label>
             )}
 
+            {orderType === "takeout" && (
+              <div className="mt-4 space-y-3">
+                <div
+                  className="grid grid-cols-2 gap-1 rounded-full p-1"
+                  style={{ backgroundColor: "var(--muted)" }}
+                >
+                  {(["delivery", "pickup"] as TakeoutMode[]).map((m) => {
+                    const active = takeoutMode === m;
+                    return (
+                      <button
+                        key={m}
+                        type="button"
+                        onClick={() => setTakeoutMode(m)}
+                        className="rounded-full py-2 text-xs font-bold uppercase tracking-wider transition-colors"
+                        style={{
+                          backgroundColor: active ? "var(--ink)" : "transparent",
+                          color: active ? "var(--sunflower)" : "var(--ink)",
+                        }}
+                      >
+                        {m === "delivery" ? "Entregar" : "Retirar no local"}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <label className="block">
+                  <span className="mb-1 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    Nome do cliente *
+                  </span>
+                  <Input
+                    type="text"
+                    placeholder="Seu nome"
+                    value={customerName}
+                    onChange={(e) => setCustomerName(e.target.value)}
+                    maxLength={80}
+                    className="text-base"
+                  />
+                </label>
+
+                {takeoutMode === "delivery" && (
+                  <label className="block">
+                    <span className="mb-1 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                      Endereço completo *
+                    </span>
+                    <Input
+                      type="text"
+                      placeholder="Rua, número, bairro"
+                      value={customerAddress}
+                      onChange={(e) => setCustomerAddress(e.target.value)}
+                      maxLength={200}
+                      className="text-base"
+                    />
+                  </label>
+                )}
+
+                <label className="block">
+                  <span className="mb-1 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    Telefone de contato
+                  </span>
+                  <Input
+                    type="tel"
+                    inputMode="tel"
+                    placeholder="(opcional)"
+                    value={customerPhone}
+                    onChange={(e) => setCustomerPhone(e.target.value)}
+                    maxLength={30}
+                    className="text-base"
+                  />
+                </label>
+
+                <label className="block">
+                  <span className="mb-1 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    Ponto de referência
+                  </span>
+                  <Input
+                    type="text"
+                    placeholder="(opcional)"
+                    value={customerRef}
+                    onChange={(e) => setCustomerRef(e.target.value)}
+                    maxLength={150}
+                    className="text-base"
+                  />
+                </label>
+              </div>
+            )}
+
             <button
               onClick={() => {
                 setStep(orderType === "dine-in" ? "dine-confirm" : "takeout-confirm");
               }}
-              disabled={!orderType || (orderType === "dine-in" && !table.trim())}
+              disabled={
+                !orderType ||
+                (orderType === "dine-in" && !table.trim()) ||
+                (orderType === "takeout" && !takeoutValid)
+              }
               className="mt-4 w-full rounded-full py-3 text-sm font-bold uppercase tracking-widest transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
               style={{ backgroundColor: "var(--ink)", color: "var(--sunflower)" }}
             >
@@ -830,7 +945,7 @@ function CartDialog({
             <DialogHeader>
               <DialogTitle className="font-display text-2xl">Confirme seu pedido</DialogTitle>
               <DialogDescription>
-                Retirada / Delivery · Total <strong>R$ {formatBRL(cart.total)}</strong>
+                {takeoutMode === "delivery" ? "Delivery" : "Retirar no local"} · {customerName || "—"} · Total <strong>R$ {formatBRL(cart.total)}</strong>
               </DialogDescription>
             </DialogHeader>
 
